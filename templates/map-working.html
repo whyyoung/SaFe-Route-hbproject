@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap"
+    async defer></script>
+    <b>Start: </b>
+    <input type="text" id="start">
+    <b>End: </b>
+    <input type="text" id="end">
+    <div id="map"></div>
+    <script>
+      var map;
+      // initializes "simple" map
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 15,
+          center: {lat: 37.7749, lng: -122.4194}
+        });}
+
+      var currentDate = new Date()
+      var startDate = new Date(+new Date - 1814e6);
+
+      currentDate = (currentDate.toISOString()).slice(0, 10)
+      startDate = (startDate.toISOString()).slice(0, 10)
+
+      console.log(currentDate)
+      console.log(startDate)
+
+        // Requests data from open source dataset to populate map markers/windows
+      $.get("https://data.sfgov.org/resource/cuks-n6tp.json?$where=date%20between%20%27" + startDate + "T00:00:00.000%27%20and%20%27" + currentDate + "T00:00:00.000%27&$$app_token={{ data_key }}",
+        function(data) {
+          $.each(data, function(i, entry) {
+            var longitude = parseFloat(entry["location"]["coordinates"][0])
+            var latitude = parseFloat(entry["location"]["coordinates"][1])
+
+            var newLatlng = {lat: latitude, lng: longitude}
+            // places a marker on the map at each incident location.
+            var marker = new google.maps.Marker({
+                    position: newLatlng,
+                    map: map,
+                    title: entry["category"]
+                  });
+
+            var incidentDate = entry["date"]
+            incidentDate = incidentDate.slice(0, 10)
+
+            // creates content for info window for each incident
+            var contentString = '<div class="window-content">' +
+                  '<p><b>Category: </b>' + entry["category"] + '</p>' +
+                  '<p><b>Date: </b>' + incidentDate + '</p>' +
+                  '<p><b>Address: </b>' + entry["address"] + '</p>' +
+                  '<p><b>Description: </b>' + entry["descript"] + '</p>' +
+              '</div>';
+            // creates content window for each map marker   
+            var infowindow = new google.maps.InfoWindow({
+                  content: contentString
+            });
+
+            marker.addListener('click', function() {
+              infowindow.open(map, marker);
+            });
+
+          });
+        });
+
+    </script>
+    
+  </body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Directions service</title>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #floating-panel {
+        position: absolute;
+        top: 10px;
+        left: 25%;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+        text-align: center;
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+  	<script async defer
+  	       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAv622etcuWU5f7UHaPWS0yxRwIWbnDYA8&callback=initMap">
+	</script> 
+	<script src="https://code.jquery.com/jquery.js"></script>
+    <div id="floating-panel">
+    <b>Start: </b>
+    <input type="text" id="start">
+    <b>End: </b>
+    <input type="text" id="end">
+    </div>
+    <div id="map"></div>
+    <script>
+      function initMap() {
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 15,
+          center: {lat: 37.7749, lng: -122.4194}
+        });
+        directionsDisplay.setMap(map);
+
+        var onChangeHandler = function() {
+          calculateAndDisplayRoute(directionsService, directionsDisplay);
+        };
+        document.getElementById('start').addEventListener('change', onChangeHandler);
+        document.getElementById('end').addEventListener('change', onChangeHandler);
+      }
+
+      function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+        directionsService.route({
+          origin: document.getElementById('start').value,
+          destination: document.getElementById('end').value,
+          travelMode: 'DRIVING'
+        }, function(response, status) {
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response);
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
+      }
+
+      // function geocodeAddress(geocoder, resultsMap) {
+      //   var address = document.getElementById('address').value;
+      //   geocoder.geocode({'address': address}, function(results, status) {
+      //     if (status === 'OK') {
+      //       resultsMap.setCenter(results[0].geometry.location);
+      //       var marker = new google.maps.Marker({
+      //         map: resultsMap,
+      //         position: results[0].geometry.location
+      //       });
+      //     } else {
+      //       alert('Geocode was not successful for the following reason: ' + status);
+      //     }
+      //   });
+      // }
+    </script>
+  </body>
+</html> -->
