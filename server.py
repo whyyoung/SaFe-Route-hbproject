@@ -1,7 +1,8 @@
 import os
 import sys
+import json
 
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 import jinja2
 
 
@@ -21,23 +22,39 @@ def index():
     	api_key=google_maps_key,
     	data_key=data_set_key)
 
-@app.route('/turn-locations.json')
-def lat_lng_bounds():
-	step_start_point = request.args.get("startBoundary")
-	step_remaining_points = request.args.get("boundaryPoints")
+# @app.route('/turn-locations.json')
+# def lat_lng_bounds():
 
-	url_format = {}
-	# url_format[coordinate[0]] = [step_start_point[lng], step_start_point[lat]]
+# 	step_start_point = request.args.get("startBoundary")
+# 	step_start_point = json.loads(step_start_point)
+# 	step_remaining_points = request.args.get("boundaryPoints")
+# 	step_remaining_points = json.loads(step_remaining_points)
 
-	print step_start_point
+# 	steps_list = [step_start_point]
+
+# 	for step in step_remaining_points:
+# 		step = json.loads(step)
+# 		steps_list.append(step)
 	
-	# i = 1
-	
-	# for coordinate in step_remaining_points:
-	# 	url_format[coordinate[i]] = 
-	# print step_start_points
-	# print step_end_points
-	return "Yay!"
+# 	# print steps_list, type(steps_list[-1])
+
+# 	boundary_coordinates = {}
+
+# 	i = 0
+
+# 	while i < len(steps_list):
+# 		x = steps_list[i]
+# 		boundary_coordinates[i] = [("lat" : (float(x.get("lat")) + (0.015)), 
+# 			(float(x.get("lng")) + (0.015))),
+# 			((float(x.get("lat")) + (0.015)), 
+# 			(float(x.get("lng")) - (0.015))),
+# 			((float(x.get("lat")) - (0.015)), 
+# 			(float(x.get("lng")) - (0.015))),
+# 			((float(x.get("lat")) - (0.015)), 
+# 			(float(x.get("lng")) + (0.015)))]
+# 		i += 1
+
+# 	return jsonify(boundary_coordinates)
 
 
 if __name__ == '__main__':
