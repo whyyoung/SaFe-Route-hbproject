@@ -1,7 +1,7 @@
 var map;
 var markers = [];
-// initializes "simple" map
 
+// initializes "simple" map
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     zoom: 15,
@@ -17,14 +17,32 @@ var startDate = new Date(+new Date - 1814e6);
 
 currentDate = (currentDate.toISOString()).slice(0, 10)
 startDate = (startDate.toISOString()).slice(0, 10)
-var urlStartDate = startDate + "T00:00:00.000"
-var urlCurrentDate = currentDate + "T00:00:00.000"
 
 $("#submit").on('click', getDirections);
+// $("#submit").on('click', updateDatabase);
+
 
 var directionsDisplay = new google.maps.DirectionsRenderer;
-
+// Takes a starting address and an ending address to build a visual walking route
+// on the map as well as written step-by-step directions to the right of the map.
+// When called, the old route with corresponding markers are removed to prepare the
+// map for a new route and set of corresponding markers/crime incidents.
 function getDirections() {
+  function setMapOnAll(map) {
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(map);
+    }
+  }
+
+  function deleteMarkers(){
+    setMapOnAll(null);
+    markers = [];
+  }
+
+  if (markers != null) {
+    deleteMarkers();
+  };
+
     directionsDisplay.setDirections({routes: []});
     var startAddress = document.getElementById('start-address').value;
     var endAddress = document.getElementById('end-address').value;
@@ -41,6 +59,7 @@ function getDirections() {
     }, function(response, status) {
       if (status === 'OK') {
         directionsDisplay.setDirections(response);
+        debugger;
         var walkingRoute = response.routes[0]
         makeBuffer(walkingRoute);
       } else {
@@ -49,56 +68,47 @@ function getDirections() {
     });
   }
 
-// Create buffer around walking route to filter dataset for relevant reports
+// Creates url data get request to filter relevant crime incidents within 100 meters radius of
+// points along a given route (provided by Goggle Maps API). The request also filters
+// the data to provide reports made during the most current week available. Data received
+// is passed to makeMarkers function to place markers where incidents have occurred.
 function makeBuffer(route) {
   var overviewPath = route.overview_path;
-  var url = "https://data.sfgov.org/resource/cuks-n6tp.json?$where="
   for (i = 0; i < overviewPath.length; i++) {
      var lat = overviewPath[i].lat();
      var lng = overviewPath[i].lng();
-     if (i < (overviewPath.length) - 1){
-      url = url + "within_circle(location,%20" + lat + ",%20" + lng + ",%20100)%20OR%20";
-    } else {
-      url = url + "within_circle(location,%20" + lat + ",%20" + lng + ",%20100)&$order=date%20DESC&$limit=100"; 
+     var url = "https://data.sfgov.org/resource/cuks-n6tp.json?$where=within_circle(location,%20" + lat + ",%20" + lng + ",%20100)%20AND%20date%20between%20%27" + 
+      startDate + "T00:00:00.000%27%20and%20%27" + currentDate + "T00:00:00.000%27";
+
+      $.get(url, makeMarker); 
     }
   }
 
-  $.get(url, filterByDate);
-}
+  // $.get(url, filterByDate);
+// }
 
 // Requests data from open source dataset to populate map markers/windows
-function filterByDate(results) {
-  var dateFiltered = []
-  $.each(results, function(i, entry) {
-      var comparisonDate = urlStartDate;
-      var incidentDate = entry["date"]
-      incidentDate = Date.parse(incidentDate);
-      comparisonDate = Date.parse(comparisonDate);
-      if (comparisonDate < incidentDate) {
-        dateFiltered.push(entry)
-      }
-    });
+// (NO LONGER RELEVANT)
+// function filterByDate(results) {
+//   var dateFiltered = []
+//   $.each(results, function(i, entry) {
+//       var comparisonDate = urlStartDate;
+//       var incidentDate = entry["date"]
+//       incidentDate = Date.parse(incidentDate);
+//       comparisonDate = Date.parse(comparisonDate);
+//       if (comparisonDate < incidentDate) {
+//         dateFiltered.push(entry)
+//       }
+//     });
 
-  makeMarker(dateFiltered);
-}
+//   makeMarker(dateFiltered);
+// }
 
-
+// Receives relevant crime data from makeBuffer function. Parses the data received
+// to extract location for the marker along with information needed to populate the
+// info window pop-up upon marker click. Sets the markers onto the map, attaches info
+// window to each marker along with a listener to call the window.
 function makeMarker(data) {
-
-  function setMapOnAll(map) {
-    for (var i = 0; i < markers.length; i++) {
-      markers[i].setMap(map);
-    }
-  }
-
-  function deleteMarkers(){
-    setMapOnAll(null);
-    markers = [];
-  }
-
-  if (markers != null) {
-    deleteMarkers();
-  };
 
   $.each(data, function(i, entry) {
       var longitude = parseFloat(entry["location"]["coordinates"][0])
@@ -140,6 +150,7 @@ function makeMarker(data) {
 
       marker.addListener('click', function() {
         infowindow.open(map, marker);
+        // setTimeout(function () { infowindow.close(); }, 5000);
       });
 
     });
