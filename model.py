@@ -15,21 +15,25 @@ class Crime(db.Model):
 
     __tablename__ = "crimes"
 
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    category = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.String(1000), nullable=False)
-    day_of_week = db.Column(db.String(20), nullable=False)
-    date = db.Column(db.DateTime, nullable=False)
-    time = db.Column(db.DateTime, nullable=False)
-    address = db.Column(db.String(500), nullable=False)
-    latitude = db.Column(db.String(20), nullable=False)
-    longitude = db.Column(db.String(20), nullable=False) 
+    IncidntNum = db.Column(db.Integer)
+    Category = db.Column(db.String(100), nullable=False)
+    Description = db.Column(db.String(1000), nullable=False)
+    Day_of_Week = db.Column(db.String(20), nullable=False)
+    Date = db.Column(db.String(20), nullable=False)
+    Time = db.Column(db.String(20), nullable=False)
+    PdDistrict = db.Column(db.String(100))
+    Resolution = db.Column(db.String(1000))
+    Address = db.Column(db.String(1000), nullable=False)
+    X = db.Column(db.String(20), nullable=False)
+    Y = db.Column(db.String(20), nullable=False)
+    Location = db.Column(db.String(100))
+    PdId = db.Column(db.String(50), primary_key=True)
 
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return "<Crime Category=%s Date=%s Time=%s Address=%s>" % (self.category,
-                self.date, self.time, self.address)
+        return "<Crime Category=%s Date=%s Time=%s Address=%s>" % (self.Category,
+                self.Date, self.Time, self.Address)
 
 ##############################################################################
 # Helper functions
@@ -39,6 +43,7 @@ def connect_to_db(app):
 
     # Configure to use our PstgreSQL database
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///crimes'
+    # app.config['SQLALCHEMY_ECHO'] = True
     db.app = app
     db.init_app(app)
 
@@ -49,4 +54,5 @@ if __name__ == "__main__":
 
     from server import app
     connect_to_db(app)
+    db.create_all()
     print "Connected to DB."

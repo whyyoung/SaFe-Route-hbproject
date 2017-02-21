@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Crime Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+
+ <script src="https://code.jquery.com/jquery.js"></script>
+ 
+{% endblock %}
+
+
+{% block body %}
+  
+  <form>
+  <strong>Category:</strong>
+  <input class="category" type="checkbox" value="assault">Assault
+  <input class="category" type="checkbox" value="drug">Drug/Narcotic
+  <input class="category" type="checkbox" value="sex">Sex Crimes
+  <input class="category" type="checkbox" value="vandalism">Vandalism/Arson
+  <input class="category" type="checkbox" value="alcohol">Alcohol Related
+  <input class="category" type="checkbox" value="burglery">Burglery/Trespassing
+  <input class="category" type="checkbox" value="robbery">Robbery/Theft
+  <input class="category" type="checkbox" value="missing">Missing Persons/Kidnapping
+  <input class="category" type="checkbox" value="misc">Miscellaneous
+<br>
+  <strong>Day of Week:</strong>
+  <select id="day">
+    <option value="monday">Monday</option>
+    <option value="tuesday">Tuesday</option>
+    <option value="wednesday">Wednesday</option>
+    <option value="thursday">Thursday</option>
+    <option value="friday">Friday</option>
+    <option value="saturday">Saturday</option>
+    <option value="sunday">Sunday</option>
+  </select>
+  <br>
+    <strong>Time of Day:</strong>
+    <select id="time">
+    <option value="0-3">12AM-3AM</option>
+    <option value="3-6">3AM-6AM</option>
+    <option value="6-9">6AM-9AM</option>
+    <option value="9-12">9AM-12PM</option>
+    <option value="12-15">12PM-3PM</option>
+    <option value="15-18">3PM-6PM</option>
+    <option value="18-21">6PM-9PM</option>
+    <option value="21-0">9PM-12AM</option>
+  </select>
+  <br>
+  <strong>District:</strong>
+  <input class="district" type="checkbox" value="bayview">Bayview
+  <input class="district" type="checkbox" value="ingleside">Ingleside
+  <input class="district" type="checkbox" value="central">Central
+  <input class="district" type="checkbox" value="northern">Northern
+  <input class="district" type="checkbox" value="southern">Southern
+  <input class="district" type="checkbox" value="mission">Mission
+  <input class="district" type="checkbox" value="tenderloin">Tenderloin
+  <input class="district" type="checkbox" value="park">Park
+  <input class="district" type="checkbox" value="taraval">Taraval
+  <input class="district" type="checkbox" value="richmond">Richmond
+  <br>
+  <input id="submit" type="submit">
+  </form>
+
+    <div id="map"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAv622etcuWU5f7UHaPWS0yxRwIWbnDYA8"></script>
+    <script src="/static/data-map.js"></script>
+  <!--   <input type="hidden" id="data-key" value="{{data_key}}"> -->
+    
+{% endblock %}

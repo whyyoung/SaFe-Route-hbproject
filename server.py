@@ -4,6 +4,7 @@ import json
 
 from flask import Flask, request, render_template, jsonify
 import jinja2
+from model import Crime, connect_to_db, db
 
 
 app = Flask(__name__)
@@ -18,43 +19,29 @@ app.secret_key = "secretSECRETseekrit"
 def index():
     """Show map.html template."""
 
-    return render_template("map.html",
-    	api_key=google_maps_key,
-    	data_key=data_set_key)
+    return render_template("map.html")
 
-# @app.route('/turn-locations.json')
-# def lat_lng_bounds():
+@app.route('/data-map')
+def show_map():
 
-# 	step_start_point = request.args.get("startBoundary")
-# 	step_start_point = json.loads(step_start_point)
-# 	step_remaining_points = request.args.get("boundaryPoints")
-# 	step_remaining_points = json.loads(step_remaining_points)
+	return render_template("data-map.html")
 
-# 	steps_list = [step_start_point]
+@app.route('/data-map.json')
+def get_filtered_data():
 
-# 	for step in step_remaining_points:
-# 		step = json.loads(step)
-# 		steps_list.append(step)
-	
-# 	# print steps_list, type(steps_list[-1])
+    district = request.args.get("district")
+    time = request.args.get("time")
+    day = request.args.get("day")
+    category = request.args.get("category")
 
-# 	boundary_coordinates = {}
+    print district
+    print time
+    print day
+    print category
 
-# 	i = 0
+    return "yay!"
 
-# 	while i < len(steps_list):
-# 		x = steps_list[i]
-# 		boundary_coordinates[i] = [("lat" : (float(x.get("lat")) + (0.015)), 
-# 			(float(x.get("lng")) + (0.015))),
-# 			((float(x.get("lat")) + (0.015)), 
-# 			(float(x.get("lng")) - (0.015))),
-# 			((float(x.get("lat")) - (0.015)), 
-# 			(float(x.get("lng")) - (0.015))),
-# 			((float(x.get("lat")) - (0.015)), 
-# 			(float(x.get("lng")) + (0.015)))]
-# 		i += 1
 
-# 	return jsonify(boundary_coordinates)
 
 
 if __name__ == '__main__':
