@@ -1,9 +1,8 @@
 import os
 import sys
 import json
-
-from flask import Flask, request, render_template, jsonify
 import jinja2
+from flask import Flask, request, render_template, jsonify, redirect, session
 from model import Crime, connect_to_db, db
 
 
@@ -35,9 +34,26 @@ def get_filtered_data():
     category = request.args.get("category")
 
     print district
-    print time
-    print day
-    print category
+
+    district_filter = []
+    category_filter = []
+
+    if district is not None:
+    	district = district.split(",")
+    	i = 0
+    	for d in district:
+    		if i == 0:
+    			district_filter.append("(Crime.PdDistrict == '" + d.upper() + "')")
+    			i += 1
+    		else:
+    			district_filter.append(" | (Crime.PdDistrict == '" + d.upper() + "')")
+
+    results = db.session.query(Crime).filter(Crime.PdDistrict.in_((district)))
+
+    print results.first()
+    # results = results.order_by('Date').all()
+
+    # print results[-50:]
 
     return "yay!"
 
@@ -47,5 +63,7 @@ def get_filtered_data():
 if __name__ == '__main__':
     # debug=True gives us error messages in the browser and also "reloads" our web app
     # if we change the code.
-    app.run(debug=True, host="0.0.0.0")
+    connect_to_db(app)
+    app.run(debug=True, host="0.0.0.0", port=5000)
+    
 

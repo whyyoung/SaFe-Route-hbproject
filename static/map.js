@@ -54,7 +54,7 @@ function getDirections() {
     directionsService.route({
       origin: startAddress,
       destination: endAddress,
-      // provideRouteAlternatives: true,
+      provideRouteAlternatives: true,
       travelMode: 'WALKING'
     }, function(response, status) {
       if (status === 'OK') {

@@ -26,18 +26,31 @@
   
   <form>
   <strong>Category:</strong>
+  <br>Personal Crimes:
   <input class="category" type="checkbox" value="assault">Assault
-  <input class="category" type="checkbox" value="drug">Drug/Narcotic
-  <input class="category" type="checkbox" value="sex">Sex Crimes
+  <input class="category" type="checkbox" value="robbery">Robbery
+  <input class="category" type="checkbox" value="kidnapping">False Imprisonment/Kidnapping
+  <input class="category" type="checkbox" value="sex">Sex-Related Crimes
+  <br>Property Crimes:
+  <input class="category" type="checkbox" value="theft">Larceny/Theft (Vehicular incl.)
+  <input class="category" type="checkbox" value="burglery">Burglery
+  <input class="category" type="checkbox" value="trespassing">Trespassing/Loitering
   <input class="category" type="checkbox" value="vandalism">Vandalism/Arson
-  <input class="category" type="checkbox" value="alcohol">Alcohol Related
-  <input class="category" type="checkbox" value="burglery">Burglery/Trespassing
-  <input class="category" type="checkbox" value="robbery">Robbery/Theft
-  <input class="category" type="checkbox" value="missing">Missing Persons/Kidnapping
+  <input class="category" type="checkbox" value="fraud">Fraud/Forgery/Embezzlement
+  <input class="category" type="checkbox" value="bribery">Extortion/Bribery
+  <br>Statuatory Crimes:
+  <input class="category" type="checkbox" value="alcohol">Alcohol-Related Crimes
+  <input class="category" type="checkbox" value="weapon">Weapon Laws
+  <input class="category" type="checkbox" value="drug">Drug/Narcotic
+  <br>Other:
+  <input class="category" type="checkbox" value="second">Secondary Codes
+  <input class="category" type="checkbox" value="disorder">Disorderly Conduct/Drunkenness
+  <input class="category" type="checkbox" value="non-criminal">Non-Criminal
   <input class="category" type="checkbox" value="misc">Miscellaneous
 <br>
   <strong>Day of Week:</strong>
   <select id="day">
+    <option value="all">All</option>
     <option value="monday">Monday</option>
     <option value="tuesday">Tuesday</option>
     <option value="wednesday">Wednesday</option>
@@ -49,6 +62,7 @@
   <br>
     <strong>Time of Day:</strong>
     <select id="time">
+    <option value="all">All</option>
     <option value="0-3">12AM-3AM</option>
     <option value="3-6">3AM-6AM</option>
     <option value="6-9">6AM-9AM</option>

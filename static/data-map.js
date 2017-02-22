@@ -23,7 +23,7 @@ startDate = (startDate.toISOString()).slice(0, 10)
 function getFilters(evt){
   evt.preventDefault();
     var params = {
-      "district": $('.district:checked').map(function() {return this.value;}).get().join(','),
+      "district": $('.district:checked').map(function() {return String(this.value);}).get().join(','),
       "time": $("#time").val(),
       "day": $("#day").val(),
       "category": $('.category:checked').map(function() {return this.value;}).get().join(',')
