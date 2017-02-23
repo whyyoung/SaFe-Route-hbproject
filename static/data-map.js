@@ -33,9 +33,8 @@ function getFilters(evt){
 
     $.get("/data-map.json", 
       params,
-      function(){
-        console.log("WOOHOO!");
-      });
+      makeMarker
+      );
 };
 // $("#submit").on('click', updateDatabase);
 
@@ -127,25 +126,39 @@ $("#submit").on('click', getFilters);
 // info window pop-up upon marker click. Sets the markers onto the map, attaches info
 // window to each marker along with a listener to call the window.
 function makeMarker(data) {
+  function setMapOnAll(map) {
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(map);
+    }
+  };
+
+  function deleteMarkers(){
+    setMapOnAll(null);
+    markers = [];
+  };
+
+  if (markers != null) {
+    deleteMarkers();
+  };
 
   $.each(data, function(i, entry) {
-      var longitude = parseFloat(entry["location"]["coordinates"][0])
-      var latitude = parseFloat(entry["location"]["coordinates"][1])
+      var longitude = parseFloat(entry.longitude)
+      var latitude = parseFloat(entry.latitude)
 
       var newLatlng = {lat: latitude, lng: longitude}
 
       var image = {
         url: 'static/unicorn.png',
-        size: new google.maps.Size(75, 75),
+        size: new google.maps.Size(60, 60),
         origin: new google.maps.Point(0, 0),
         anchor: new google.maps.Point(17, 34),
-        scaledSize: new google.maps.Size(40,40)
+        scaledSize: new google.maps.Size(30, 30)
       };
       // places a marker on the map at each incident location.
       var marker = new google.maps.Marker({
               position: newLatlng,
               map: map,
-              title: entry["category"],
+              title: entry.category,
               icon: image
             });
       markers.push(marker);
@@ -155,11 +168,11 @@ function makeMarker(data) {
 
       // creates content for info window for each incident
       var contentString = '<div class="window-content">' +
-            '<p><b>Category: </b>' + entry["category"] + '</p>' +
+            '<p><b>Category: </b>' + entry.category + '</p>' +
             '<p><b>Date: </b>' + incidentDate + '</p>' +
-            '<p><b>Time: </b>' + entry["time"] + '</p>' +
-            '<p><b>Address: </b>' + entry["address"] + '</p>' +
-            '<p><b>Description: </b>' + entry["descript"] + '</p>' +
+            '<p><b>Time: </b>' + entry.time + '</p>' +
+            '<p><b>Address: </b>' + entry.address + '</p>' +
+            '<p><b>Description: </b>' + entry.description + '</p>' +
         '</div>';
       // creates content window for each map marker   
       var infowindow = new google.maps.InfoWindow({

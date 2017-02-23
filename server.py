@@ -28,36 +28,111 @@ def show_map():
 @app.route('/data-map.json')
 def get_filtered_data():
 
-    district = request.args.get("district")
-    time = request.args.get("time")
-    day = request.args.get("day")
-    category = request.args.get("category")
+	district = request.args.get("district")
+	time = request.args.get("time")
+	day = request.args.get("day")
+	category = request.args.get("category")
 
-    print district
+	print district
+	district_filter = []
+	category_filter = []
 
-    district_filter = []
-    category_filter = []
+	if district is not None:
+		district = district.split(",")
+		for d in district:
+			district_filter.append(d.upper())
 
-    if district is not None:
-    	district = district.split(",")
-    	i = 0
-    	for d in district:
-    		if i == 0:
-    			district_filter.append("(Crime.PdDistrict == '" + d.upper() + "')")
-    			i += 1
-    		else:
-    			district_filter.append(" | (Crime.PdDistrict == '" + d.upper() + "')")
+	if category is not None:
+		category = category.split(",")
+		category_filter = combine_category(category)
 
-    results = db.session.query(Crime).filter(Crime.PdDistrict.in_((district)))
+	print district_filter
+	print category_filter
 
-    print results.first()
-    # results = results.order_by('Date').all()
+    # if district is not None:
+    # 	district = district.split(",")
+    # 	i = 0
+    # 	for d in district:
+    # 		if i == 0:
+    # 			district_filter.append("(Crime.PdDistrict == '" + d.upper() + "')")
+    # 			i += 1
+    # 		else:
+    # 			district_filter.append(" | (Crime.PdDistrict == '" + d.upper() + "')")
 
-    # print results[-50:]
+	query_results = db.session.query(Crime).filter(Crime.PdDistrict.in_((district_filter)) &
+											Crime.Category.in_((category_filter)))
 
-    return "yay!"
+	query_results = query_results.order_by('Date').all()
+	query_results = query_results[-50:]
 
+	results = {}
 
+	for entry in query_results:
+		results[entry.PdId] = {"latitude": entry.Y,
+								"longitude": entry.X,
+								"category": entry.Category,
+								"date": entry.Date,
+								"time": entry.Time,
+								"address": entry.Address,
+								"description": entry.Description}
+
+	# json_results = json.dumps(query_results)
+
+	return jsonify(results)
+
+def combine_category(category):
+
+	category_filter = []
+
+	for c in category:
+		if c == "sex":
+			category_filter.append("SEX OFFENSES, NON FORCIBLE")
+			category_filter.append("SEX OFFENSES, FORCIBLE")
+			category_filter.append("PROSTITUION")
+			category_filter.append("PORNOGRAPHY/OBSCENE MAT")
+		elif c == "theft":
+			category_filter.append("VEHICLE THEFT")
+			category_filter.append("LARCENY/THEFT")
+			category_filter.append("STOLEN PROPERTY")
+		elif c == "trespassing":
+			category_filter.append("SUSPICIOUS OCC")
+			category_filter.append("LOITERING")
+			category_filter.append("TRESPASS")
+			category_filter.append("TREA")
+		elif c == "vandalism":
+			category_filter.append("VANDALISM")
+			category_filter.append("ARSON")
+		elif c == "fraud":
+			category_filter.append("EMBEZZLEMENT")
+			category_filter.append("FORGERY/COUNTERFEITING")
+			category_filter.append("FRAUD")
+			category_filter.append("BAD CHECKS")
+		elif c == "bribery":
+			category_filter.append("EXTORTION")
+			category_filter.append("BRIBERY")
+		elif c == "alcohol":
+			category_filter.append("DRIVING UNDER THE INFLUENCE")
+			category_filter.append("LIQUOR LAWS")
+		elif c == "weapon":
+			category_filter.append("WEAPON LAWS")
+		elif c == "secondary":
+			category_filter.append("SECONDARY CODES")
+		elif c == "disorder":
+			category_filter.append("DISORDERLY CONDUCT")
+			category_filter.append("DRUNKENNESS")
+		elif c == "misc":
+			category_filter.append("RECOVERED VEHICLE")
+			category_filter.append("OTHER OFFENSES")
+			category_filter.append("SUICIDE")
+			category_filter.append("FAMILY OFFENSES")
+			category_filter.append("WARRANTS")
+			category_filter.append("RUNAWAY")
+			category_filter.append("MISSING PERSON")
+			category_filter.append("GAMBLING")
+		else:
+			category_filter.append(c.upper())
+
+	return category_filter
 
 
 if __name__ == '__main__':

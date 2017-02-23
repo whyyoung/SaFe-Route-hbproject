@@ -59,14 +59,17 @@ function getDirections() {
     }, function(response, status) {
       if (status === 'OK') {
         directionsDisplay.setDirections(response);
-        debugger;
         var walkingRoute = response.routes[0]
         makeBuffer(walkingRoute);
       } else {
         window.alert('Directions request failed due to ' + status);
       }
+
     });
   }
+$("#right-panel").on('change', function() {
+    alert("Directions Changed!");
+  });
 
 // Creates url data get request to filter relevant crime incidents within 100 meters radius of
 // points along a given route (provided by Goggle Maps API). The request also filters
