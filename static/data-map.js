@@ -159,7 +159,7 @@ function makeMarker(data) {
               position: newLatlng,
               map: map,
               title: entry.category,
-              icon: image
+              // icon: image
             });
       markers.push(marker);
 
