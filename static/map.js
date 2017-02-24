@@ -1,5 +1,6 @@
 var map;
 var markers = [];
+var walkingRouteStored = [];
 
 // initializes "simple" map
 function initMap() {
@@ -21,15 +22,13 @@ startDate = (startDate.toISOString()).slice(0, 10)
 $("#submit").on('click', getDirections);
 // $("#submit").on('click', updateDatabase);
 
-var walkingRouteStored = []
-var directionsDisplay = new google.maps.DirectionsRenderer;
-// Takes a starting address and an ending address to build a visual walking route
-// on the map as well as written step-by-step directions to the right of the map.
-// When called, the old route with corresponding markers are removed to prepare the
+// When called, removes any markers on the page for the existing route to prepare the
 // map for a new route and set of corresponding markers/crime incidents.
 function setMapOnAll(map) {
-  for (var i = 0; i < markers.length; i++) {
-    markers[i].setMap(map);
+  if (markers != null) {
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(map);
+    }
   }
 }
 
@@ -38,12 +37,11 @@ function deleteMarkers(){
   markers = [];
 }
 
-
+var directionsDisplay = new google.maps.DirectionsRenderer;
+// Takes a starting address and an ending address to build a visual walking route
+// on the map as well as written step-by-step directions to the right of the map.
 function getDirections() {
-
-    if (markers != null) {
-      deleteMarkers();
-    };
+    walkingRouteStored = []
 
     directionsDisplay.setDirections({routes: []});
     var startAddress = document.getElementById('start-address').value;
@@ -65,72 +63,27 @@ function getDirections() {
         makeBuffer(walkingRoute);  
 
         for(var i in response.routes) {
-            // var line = new google.maps.Polyline({
-            //   path: walkingRoute,
-            //   strokeColor: "FFEE00",  // you might want different colors per suggestion
-            //   strokeOpacity: 0.7,
-            //   strokeWeight: 3
-            // });
-            // line.setMap(map);
             var obj = {};
             obj[i] = response.routes[i].overview_path;
             walkingRouteStored.push(obj);
-
-
-            // var line = drawPolyline(response.routes[i].overview_path, '#0000ff', hide);
-            // polylines.push(line);
-            // shadows.push(shadow);
-            // // let's add some data for the infoWindow
-            // data.push({
-            //     distance: response.routes[i].legs[0].distance,
-            //     duration: response.routes[i].legs[0].duration,
-            //     end_address: response.routes[i].legs[0].end_address,
-            //     start_address: response.routes[i].legs[0].start_address,
-            //     end_location: response.routes[i].legs[0].end_location,
-            //     start_location: response.routes[i].legs[0].start_location
-            // });
-            // bounds = line.getBounds(bounds);
-            // google.maps.event.addListener(shadow, 'click', function(e) {
-            //     // detect which route was clicked on
-            //     var index = shadows.indexOf(this);
-            //     highlightRoute(index, e);
             }
           }
 
         });
-        // directionsDisplay.setDirections(response);
-                        // document.getElementsByClassName('adp-listinfo').addEventListener('click', alert("it worked!"));
-                      //   var onChangeHandler = function() {
-                      //     calculateAndDisplayRoute(directionsService, directionsDisplay);
-                      //   };
-                      //   document.getElementById('start').addEventListener('change', onChangeHandler);
-                      //   document.getElementById('end').addEventListener('change', onChangeHandler);
-                      // }
-      //   var walkingRoute = response.routes[0]
-      //   makeBuffer(walkingRoute);
-      // } else {
-      //   window.alert('Directions request failed due to ' + status);
-      // }
-
-    // });
-  debugger;
   }
-// document.querySelector('body').addEventListener('click', function(event) {
-//   if (event.target.tagName.toLowerCase() === 'td') {
 
-//   console.log("hi");
-// }
-// });
+var click_event_tracker = false;
 
 $('#right-panel').on('DOMNodeInserted', function(){
-  $("td").on('click', function(){
-    var x = this.dataset.routeIndex;
-    var newMarkers = walkingRouteStored[x];
-    if (markers != null) {
-      deleteMarkers();
-    };
-    makeBuffer(newMarkers[x]);
-    debugger;
+  $('td').on('click', function(){
+    if (click_event_tracker == false) {
+      var x = this.dataset.routeIndex;
+      var newMarkers = walkingRouteStored[x];
+      debugger;
+      console.log(markers);
+      makeBuffer(newMarkers[x]);
+      click_event_tracker = true;
+    }
   })
 });
 
@@ -140,10 +93,12 @@ $('#right-panel').on('DOMNodeInserted', function(){
 // the data to provide reports made during the most current week available. Data received
 // is passed to makeMarkers function to place markers where incidents have occurred.
 function makeBuffer(route) {
-  var overviewPath = route;
-  for (i = 0; i < overviewPath.length; i++) {
-     var lat = overviewPath[i].lat();
-     var lng = overviewPath[i].lng();
+  // var overviewPath = route;
+  deleteMarkers();
+  debugger;
+  for (i = 0; i < route.length; i++) {
+     var lat = route[i].lat();
+     var lng = route[i].lng();
      var url = "https://data.sfgov.org/resource/cuks-n6tp.json?$where=within_circle(location,%20" + lat + ",%20" + lng + ",%20100)%20AND%20date%20between%20%27" + 
       startDate + "T00:00:00.000%27%20and%20%27" + currentDate + "T00:00:00.000%27";
 
@@ -176,6 +131,9 @@ function makeBuffer(route) {
 // info window pop-up upon marker click. Sets the markers onto the map, attaches info
 // window to each marker along with a listener to call the window.
 function makeMarker(data) {
+  console.log(data)
+  debugger;
+  click_event_tracker = false;
   $.each(data, function(i, entry) {
       var longitude = parseFloat(entry["location"]["coordinates"][0])
       var latitude = parseFloat(entry["location"]["coordinates"][1])
