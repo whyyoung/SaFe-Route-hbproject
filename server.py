@@ -2,8 +2,10 @@ import os
 import sys
 import json
 import jinja2
+import datetime
 from flask import Flask, request, render_template, jsonify, redirect, session
 from model import Crime, connect_to_db, db
+from sqlalchemy import and_, Date, Time, cast
 
 
 app = Flask(__name__)
@@ -33,9 +35,9 @@ def get_filtered_data():
 	day = request.args.get("day")
 	category = request.args.get("category")
 
-	print district
 	district_filter = []
 	category_filter = []
+	day_filter = []
 
 	if district is not None:
 		district = district.split(",")
@@ -46,21 +48,15 @@ def get_filtered_data():
 		category = category.split(",")
 		category_filter = combine_category(category)
 
-	print district_filter
-	print category_filter
+	day_filter.append(day.title())
 
-    # if district is not None:
-    # 	district = district.split(",")
-    # 	i = 0
-    # 	for d in district:
-    # 		if i == 0:
-    # 			district_filter.append("(Crime.PdDistrict == '" + d.upper() + "')")
-    # 			i += 1
-    # 		else:
-    # 			district_filter.append(" | (Crime.PdDistrict == '" + d.upper() + "')")
+	time = time_filter(time)
 
 	query_results = db.session.query(Crime).filter(Crime.PdDistrict.in_((district_filter)) &
-											Crime.Category.in_((category_filter)))
+											Crime.Category.in_((category_filter)) &
+											Crime.Day_of_Week.in_((day_filter)) &
+											(time[0] < Crime.Time) &
+											(Crime.Time <= time[1])) 
 
 	query_results = query_results.order_by('Date').all()
 	query_results = query_results[-50:]
@@ -79,6 +75,18 @@ def get_filtered_data():
 	# json_results = json.dumps(query_results)
 
 	return jsonify(results)
+
+def time_filter(timeframe):
+	time_dict = {"0-3": ['00:00', '03:00'],
+				"3-6": ['03:00', '06:00'],
+				"6-9": ['06:00', '09:00'],
+				"9-12": ['09:00', '12:00'],
+				"12-15": ['12:00', '15:00'],
+				"15-18": ['15:00', '18:00'],
+				"18-21": ['18:00', '21:00'],
+				"21-0": ['21:00', '24:00']}
+	
+	return time_dict[timeframe]
 
 def combine_category(category):
 
