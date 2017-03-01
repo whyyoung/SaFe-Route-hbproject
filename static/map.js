@@ -14,7 +14,7 @@ initMap();
 // set dates for URL request from today to 3 weeks previous which will provide 
 // 1 week's worth of data to map
 var currentDate = new Date();
-var startDate = new Date(+new Date - 1814e6);
+var startDate = new Date(+new Date - 2419e6);
 
 currentDate = (currentDate.toISOString()).slice(0, 10)
 startDate = (startDate.toISOString()).slice(0, 10)
@@ -67,10 +67,31 @@ function getDirections() {
             obj[i] = response.routes[i].overview_path;
             walkingRouteStored.push(obj);
             }
+
+
           }
 
         });
-  }
+
+    var nowDateTime = new Date()
+    nowDateTime = nowDateTime.toISOString()
+
+    var searchInfo = {
+      "start": startAddress,
+      "end": endAddress,
+      "routes": walkingRouteStored,
+      "datestamp": nowDateTime
+    };
+    setTimeout(function() {
+      $.ajax({
+      url:'/store-searches.json',
+      type: "POST",
+      data: JSON.stringify(searchInfo),
+      contentType: "application/json; charset=utf-8",
+      success: function(){}
+      });
+    }, 2000);
+  };
 
 var click_event_tracker = false;
 
@@ -79,8 +100,6 @@ $('#right-panel').on('DOMNodeInserted', function(){
     if (click_event_tracker == false) {
       var x = this.dataset.routeIndex;
       var newMarkers = walkingRouteStored[x];
-      debugger;
-      console.log(markers);
       makeBuffer(newMarkers[x]);
       click_event_tracker = true;
     }
@@ -95,12 +114,13 @@ $('#right-panel').on('DOMNodeInserted', function(){
 function makeBuffer(route) {
   // var overviewPath = route;
   deleteMarkers();
-  debugger;
   for (i = 0; i < route.length; i++) {
      var lat = route[i].lat();
      var lng = route[i].lng();
      var url = "https://data.sfgov.org/resource/cuks-n6tp.json?$where=within_circle(location,%20" + lat + ",%20" + lng + ",%20100)%20AND%20date%20between%20%27" + 
-      startDate + "T00:00:00.000%27%20and%20%27" + currentDate + "T00:00:00.000%27";
+      startDate + "T00:00:00.000%27%20and%20%27" + currentDate + "T00:00:00.000%27%20AND%20category%20" + 
+      "in('ASSAULT',%20'ROBBERY',%20'KIDNAPPING',%20'SEX%20OFFENSES,%20NON%20FORCIBLE',%20'SEX%20OFFENSES,%20FORCIBLE',%20'PROSTITUION',%20'PORNOGRAPHY/OBSCENE%20MAT')" +
+      "&$$app_token=NbDmHMnJDPXxi9GKVUV73Kt8t";
 
       $.get(url, makeMarker); 
     }
@@ -131,8 +151,6 @@ function makeBuffer(route) {
 // info window pop-up upon marker click. Sets the markers onto the map, attaches info
 // window to each marker along with a listener to call the window.
 function makeMarker(data) {
-  console.log(data)
-  debugger;
   click_event_tracker = false;
   $.each(data, function(i, entry) {
       var longitude = parseFloat(entry["location"]["coordinates"][0])
@@ -174,10 +192,33 @@ function makeMarker(data) {
 
       marker.addListener('click', function() {
         infowindow.open(map, marker);
-        // setTimeout(function () { infowindow.close(); }, 5000);
+        setTimeout(function () { infowindow.close(); }, 5000);
       });
 
     });
   };
+
+$('#lyft').on('click', requestLyft)
+
+function requestLyft(){
+  var startAddress = document.getElementById('start-address').value;
+  var endAddress = document.getElementById('end-address').value;
+
+  $.ajax({
+      url:'https://api.lyft.com/v1/rides',
+      type: "POST",
+      data: {"ride_type" : "lyft",
+            "origin" : {"lat" : 37.7763, "lng" : -122.3918 }},
+      contentType: "application/json; charset=utf-8",
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Basic ' + [anylib].base64encode('1d75wsZ6y0SFdVsY9183IvxFyZp:EClusMEUk8e9ihI7ZdVLF'));
+        xhr.setRequestHeader('Accept-Language', 'en_US');
+      });
+
+  curl -X POST -H "Authorization: Bearer <access_token> " \
+     -H "Content-Type: application/json" \
+     -d '{"ride_type" : "lyft", "origin" : {"lat" : 37.7763, "lng" : -122.3918 } }' \
+     'https://api.lyft.com/v1/rides'
+}
 
 

@@ -35,6 +35,41 @@ class Crime(db.Model):
         return "<Crime Category=%s Date=%s Time=%s Address=%s>" % (self.Category,
                 self.Date, self.Time, self.Address)
 
+class RouteSearch(db.Model):
+    """Stores searches, directions and alternative route information."""
+
+    __tablename__ = "route_searches"
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    starting_location = db.Column(db.String(200))
+    ending_location = db.Column(db.String(200))
+    walking_routes = db.Column(db.PickleType())
+    request_date_time = db.Column(db.DateTime)
+    # lyft_requested = db.Column(db.Boolean)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<Starting Location=%s Ending Location=%s" % (self.starting_location,
+                self.ending_location)
+
+class DataSearch(db.Model):
+    """Stores user filters of data."""
+
+    __tablename__ = "data_searches"
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    category = db.Column(db.String(2000))
+    day = db.Column(db.String(20))
+    time = db.Column(db.String(100))
+    district = db.Column(db.String(2000))
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<Search Category=%s Day=%s Time=%s District=%s>" % (self.category,
+                self.day, self.time, self.district)
+
 ##############################################################################
 # Helper functions
 

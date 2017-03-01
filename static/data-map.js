@@ -18,8 +18,6 @@ var startDate = new Date(+new Date - 1814e6);
 currentDate = (currentDate.toISOString()).slice(0, 10)
 startDate = (startDate.toISOString()).slice(0, 10)
 
-
-
 function getFilters(evt){
   evt.preventDefault();
     var params = {
