@@ -3,14 +3,26 @@ import sys
 import json
 import jinja2
 import datetime
+from lyft_rides.auth import ClientCredentialGrant
+from lyft_rides.session import Session
+from lyft_rides.client import LyftRidesClient
+
+from collections import OrderedDict
+
+# from lyft_rides.auth import refresh_access_token
+# from lyft_rides.auth import revoke_access_token
+# from lyft_rides.request import Request
+# from lyft_rides.utils import auth
 from flask import Flask, request, render_template, jsonify, redirect, session
 from model import Crime, connect_to_db, db, DataSearch, RouteSearch
-
 
 app = Flask(__name__)
 
 google_maps_key=os.environ['GOOGLE_MAPS_ACCESS_TOKEN']
 data_set_key=os.environ['DATA_ACCESS_TOKEN']
+lyft_client_id=os.environ['LYFT_CLIENT_ID']
+lyft_client_token=os.environ['LYFT_CLIENT_TOKEN']
+lyft_client_secret=os.environ['LYFT_CLIENT_SECRET']
 
 # Required to use Flask sessions and the debug toolbar
 app.secret_key = "secretSECRETseekrit"
@@ -157,6 +169,75 @@ def combine_category(category):
 
 	return category_filter
 
+@app.route('/get_lyft_info', methods=["POST"])
+def lyft_request():
+	start_address = request.form.get("startAddress")
+	end_address = request.form.get("endAddress")
+	start_lat = request.form.get("start_lat")
+	start_lng = request.form.get("start_lng")
+	end_lat = request.form.get("end_lat")
+	end_lng = request.form.get("end_lng")
+
+	# auth_flow = AuthorizationCodeGrant(
+	#     lyft_client_id,
+	#     lyft_client_secret,
+	#     ["public","rides.request"],
+	#     sandbox_mode=True,
+	# )
+	# auth_url = auth_flow.get_authorization_url()
+
+	auth_flow = ClientCredentialGrant(client_id=lyft_client_id, client_secret=lyft_client_secret, scopes=["public","rides.read"])
+	session = auth_flow.get_session()
+
+	client = LyftRidesClient(session)
+	response = client.get_ride_types(37.7833, -122.4167)
+	ride_types = response.json.get('ride_types')
+
+	eta_response = client.get_pickup_time_estimates(latitude=float(start_lat), longitude=float(start_lng))
+	pickup_eta = eta_response.json.get('eta_estimates')
+	return_dict = {}
+
+	i_eta = 0
+	while i_eta < len(pickup_eta):
+		if pickup_eta[i_eta]["ride_type"] == 'lyft':
+			return_dict["ride_type"] = pickup_eta[i_eta]["ride_type"],
+			return_dict["display_name"] = pickup_eta[i_eta]["display_name"],
+			return_dict["eta_seconds"] = pickup_eta[i_eta]["eta_seconds"]
+		i_eta += 1
+
+	cost_response = client.get_cost_estimates(start_latitude=float(start_lat),
+											start_longitude=float(start_lng),
+											end_latitude=float(end_lat),
+											end_longitude=float(end_lng))
+	cost_estimates = cost_response.json.get('cost_estimates')
+
+	i_cost = 0
+	while i_cost < len(cost_estimates):
+		if cost_estimates[i_cost]["ride_type"] == 'lyft':
+			return_dict["estimated_cost_cents_max"] = cost_estimates[i_cost]["estimated_cost_cents_max"]
+			return_dict["estimated_cost_cents_min"] = cost_estimates[i_cost]["estimated_cost_cents_min"]
+			return_dict["primetime_confirmation_token"] = cost_estimates[i_cost]["primetime_confirmation_token"]
+		i_cost += 1
+
+	print pickup_eta, cost_estimates
+
+	# session = auth_flow.get_session(redirect_url)
+	# client = LyftRidesClient(session)
+	# credentials = session.oauth2credential
+	# response = client.get_ride_types(37.7833, -122.4167)
+	# ride_types = response.json.get('ride_types')
+
+	# response = client.request_ride(
+	#     ride_type=ride_type,
+	#     start_latitude=37.77,
+	#     start_longitude=-122.41,
+	#     end_latitude=37.79,
+	#     end_longitude=-122.41,
+	# )
+	# ride_details = response.json
+	# ride_id = ride_details.get('ride_id')
+
+	return jsonify(return_dict)
 
 if __name__ == '__main__':
     # debug=True gives us error messages in the browser and also "reloads" our web app

@@ -90,7 +90,34 @@ function getDirections() {
       contentType: "application/json; charset=utf-8",
       success: function(){}
       });
+      getLyftInfo();
     }, 2000);
+
+    function getLyftInfo(){
+      // var startAddress = document.getElementById('start-address').value;
+      // var endAddress = document.getElementById('end-address').value;
+      var routeLatLng = walkingRouteStored[0][0];
+      var end_point = routeLatLng.length - 1
+
+      var start_lat = routeLatLng[0].lat()
+      var start_lng = routeLatLng[0].lng()
+      var end_lat = routeLatLng[end_point].lat()
+      var end_lng = routeLatLng[end_point].lng()
+
+      var data = {"startAddress": startAddress,
+                  "endAddress": endAddress,
+                  "start_lat": start_lat,
+                  "start_lng": start_lng,
+                  "end_lat": end_lat,
+                  "end_lng": end_lng}
+
+      $.post("/get_lyft_info", data, displayLyftInfo);
+
+      function displayLyftInfo(results){
+        // alert("You have successfully requested a Lyft and a driver is on the way!");
+        console.log(results);
+      };
+    }
   };
 
 var click_event_tracker = false;
@@ -198,27 +225,8 @@ function makeMarker(data) {
     });
   };
 
-$('#lyft').on('click', requestLyft)
+// $('#lyft').on('click', requestLyft);
 
-function requestLyft(){
-  var startAddress = document.getElementById('start-address').value;
-  var endAddress = document.getElementById('end-address').value;
 
-  $.ajax({
-      url:'https://api.lyft.com/v1/rides',
-      type: "POST",
-      data: {"ride_type" : "lyft",
-            "origin" : {"lat" : 37.7763, "lng" : -122.3918 }},
-      contentType: "application/json; charset=utf-8",
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader('Authorization', 'Basic ' + [anylib].base64encode('1d75wsZ6y0SFdVsY9183IvxFyZp:EClusMEUk8e9ihI7ZdVLF'));
-        xhr.setRequestHeader('Accept-Language', 'en_US');
-      });
-
-  curl -X POST -H "Authorization: Bearer <access_token> " \
-     -H "Content-Type: application/json" \
-     -d '{"ride_type" : "lyft", "origin" : {"lat" : 37.7763, "lng" : -122.3918 } }' \
-     'https://api.lyft.com/v1/rides'
-}
 
 
