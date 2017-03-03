@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block head %}
-<title>Crime Map</title>
+<title>Directions</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
     <style>
@@ -62,14 +62,18 @@
 {% block body %}
   
   <div id="address-input">
-  <strong>Start:</strong><input id="start-address" type="textbox" value="683 sutter street">
+  <strong>Start:</strong><input id="start-address" type="textbox" value="{{ start }}">
   <br>
-  <strong>End:</strong><input id="end-address" type="textbox" value="700 montgomery street">
+  <strong>End:</strong><input id="end-address" type="textbox" value="{{ end }}">
   <br>
-  <input id="submit" type="button" value="Get Directions"></div
->
+  <input id="get-directions" type="button" value="Get Directions">
+  <a href="/data-map">Full map of SF</a></div>
   <div id="right-panel">
-    <input id="lyft" type="button" value="Request a Lyft!"></div>
+    <div id="lyft-info">
+      <input id="lyft-request" type="button" value="Request a Lyft!">
+      <p></p>
+    </div>
+  </div>
     <div id="map"></div>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAv622etcuWU5f7UHaPWS0yxRwIWbnDYA8"></script>
     <script src="/static/map.js"></script>

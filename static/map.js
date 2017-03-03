@@ -7,19 +7,20 @@ function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     zoom: 15,
     center: {lat: 37.7749, lng: -122.4194}
-  });};
+  });
+  $('#lyft-request').hide();};
 
 initMap();
 
 // set dates for URL request from today to 3 weeks previous which will provide 
 // 1 week's worth of data to map
 var currentDate = new Date();
-var startDate = new Date(+new Date - 2419e6);
+var startDate = new Date(+new Date - 1814e6);
 
 currentDate = (currentDate.toISOString()).slice(0, 10)
 startDate = (startDate.toISOString()).slice(0, 10)
 
-$("#submit").on('click', getDirections);
+$("#get-directions").on('click', getDirections);
 // $("#submit").on('click', updateDatabase);
 
 // When called, removes any markers on the page for the existing route to prepare the
@@ -41,6 +42,10 @@ var directionsDisplay = new google.maps.DirectionsRenderer;
 // Takes a starting address and an ending address to build a visual walking route
 // on the map as well as written step-by-step directions to the right of the map.
 function getDirections() {
+  if (document.getElementById('start-address').value == "None") {
+    $("#start-address").attr("value", "Starting Address")
+    $("#end-address").attr("value", "Destination Address")
+  } else {
     walkingRouteStored = []
 
     directionsDisplay.setDirections({routes: []});
@@ -92,8 +97,24 @@ function getDirections() {
       });
       getLyftInfo();
     }, 2000);
+  };}
 
-    function getLyftInfo(){
+getDirections();
+
+var click_event_tracker = false;
+
+$('#right-panel').on('DOMNodeInserted', function(){
+  $('td').on('click', function(){
+    if (click_event_tracker == false) {
+      var x = this.dataset.routeIndex;
+      var newMarkers = walkingRouteStored[x];
+      makeBuffer(newMarkers[x]);
+      click_event_tracker = true;
+    }
+  })
+});
+
+function getLyftInfo(){
       // var startAddress = document.getElementById('start-address').value;
       // var endAddress = document.getElementById('end-address').value;
       var routeLatLng = walkingRouteStored[0][0];
@@ -110,28 +131,23 @@ function getDirections() {
                   "start_lng": start_lng,
                   "end_lat": end_lat,
                   "end_lng": end_lng}
-
+      $('p').empty();
       $.post("/get_lyft_info", data, displayLyftInfo);
 
       function displayLyftInfo(results){
+        var minutes = Math.floor(results.eta_seconds/60);
+        var seconds = results.eta_seconds - minutes * 60;
+        var maxDollars = results.estimated_cost_cents_max / 100;
+        var minDollars = results.estimated_cost_cents_min / 100;
+
+        maxDollars.toLocaleString("en-US", {style:"currency", currency:"USD"});
+        minDollars.toLocaleString("en-US", {style:"currency", currency:"USD"});
         // alert("You have successfully requested a Lyft and a driver is on the way!");
-        console.log(results);
+        $('p').html("ETA: " + minutes + "min, " + seconds + "sec" + "<br>" +
+                    "Cost: $" + minDollars + " - $" + maxDollars)
+        $('#lyft-request').toggle();
       };
     }
-  };
-
-var click_event_tracker = false;
-
-$('#right-panel').on('DOMNodeInserted', function(){
-  $('td').on('click', function(){
-    if (click_event_tracker == false) {
-      var x = this.dataset.routeIndex;
-      var newMarkers = walkingRouteStored[x];
-      makeBuffer(newMarkers[x]);
-      click_event_tracker = true;
-    }
-  })
-});
 
 
 // Creates url data get request to filter relevant crime incidents within 100 meters radius of
@@ -145,9 +161,8 @@ function makeBuffer(route) {
      var lat = route[i].lat();
      var lng = route[i].lng();
      var url = "https://data.sfgov.org/resource/cuks-n6tp.json?$where=within_circle(location,%20" + lat + ",%20" + lng + ",%20100)%20AND%20date%20between%20%27" + 
-      startDate + "T00:00:00.000%27%20and%20%27" + currentDate + "T00:00:00.000%27%20AND%20category%20" + 
-      "in('ASSAULT',%20'ROBBERY',%20'KIDNAPPING',%20'SEX%20OFFENSES,%20NON%20FORCIBLE',%20'SEX%20OFFENSES,%20FORCIBLE',%20'PROSTITUION',%20'PORNOGRAPHY/OBSCENE%20MAT')" +
-      "&$$app_token=NbDmHMnJDPXxi9GKVUV73Kt8t";
+      startDate + "T00:00:00.000%27%20and%20%27" + currentDate + "T00:00:00.000%27&$$app_token=NbDmHMnJDPXxi9GKVUV73Kt8t"
+      // "%20AND%20category%20in('ASSAULT',%20'ROBBERY',%20'KIDNAPPING',%20'SEX%20OFFENSES,%20NON%20FORCIBLE',%20'SEX%20OFFENSES,%20FORCIBLE',%20'PROSTITUION',%20'PORNOGRAPHY/OBSCENE%20MAT')";
 
       $.get(url, makeMarker); 
     }
@@ -182,24 +197,84 @@ function makeMarker(data) {
   $.each(data, function(i, entry) {
       var longitude = parseFloat(entry["location"]["coordinates"][0])
       var latitude = parseFloat(entry["location"]["coordinates"][1])
+      var category = entry["category"]
 
       var newLatlng = {lat: latitude, lng: longitude}
 
-      var image = {
-        url: 'static/unicorn.png',
-        size: new google.maps.Size(75, 75),
+      var imageS = {
+        url: 'static/images/blue_MarkerS.png',
+        // size: new google.maps.Size(50, 50),
         origin: new google.maps.Point(0, 0),
         anchor: new google.maps.Point(17, 34),
-        scaledSize: new google.maps.Size(40,40)
+        // scaledSize: new google.maps.Size(30,30)
       };
-      // places a marker on the map at each incident location.
-      var marker = new google.maps.Marker({
+
+      var imageA = {
+        url: 'static/images/yellow_MarkerA.png',
+        // size: new google.maps.Size(50, 50),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(17, 34),
+        // scaledSize: new google.maps.Size(30,30)
+      };
+
+      var imageK = {
+        url: 'static/images/purple_MarkerK.png',
+        // size: new google.maps.Size(50, 50),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(17, 34),
+        // scaledSize: new google.maps.Size(30,30)
+      }
+
+      var imageR = {
+        url: 'static/images/brown_MarkerR.png',
+        // size: new google.maps.Size(50, 50),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(17, 34),
+        // scaledSize: new google.maps.Size(30,30)
+      }
+
+      // places a marker on the map at each incident location. Personal Crimes have customized markers.
+      if (category == "ASSAULT") {
+        var marker = new google.maps.Marker({
               position: newLatlng,
               map: map,
               title: entry["category"],
-              // icon: image
+              icon: imageA,
             });
-      markers.push(marker);
+        markers.push(marker);
+      } else if (category == "ROBBERY") {
+        var marker = new google.maps.Marker({
+              position: newLatlng,
+              map: map,
+              title: entry["category"],
+              icon: imageR
+            });
+        markers.push(marker);
+      } else if (category == "KIDNAPPING") {
+        var marker = new google.maps.Marker({
+              position: newLatlng,
+              map: map,
+              title: entry["category"],
+              icon: imageK
+            });
+        markers.push(marker);
+      } else if (category == ("SEX OFFENSES, NON FORCIBLE", "SEX OFFENSES, FORCIBLE", "PROSTITUION")) {
+        var marker = new google.maps.Marker({
+              position: newLatlng,
+              map: map,
+              title: entry["category"],
+              icon: imageS
+            });
+        markers.push(marker);
+      } else {
+        var marker = new google.maps.Marker({
+                position: newLatlng,
+                map: map,
+                title: entry["category"],
+                // icon: image
+              });
+        markers.push(marker);
+      };
 
       var incidentDate = entry["date"]
       incidentDate = incidentDate.slice(0, 10)
@@ -225,7 +300,9 @@ function makeMarker(data) {
     });
   };
 
-// $('#lyft').on('click', requestLyft);
+$('#lyft-request').on('click', function() {
+  alert("You have successfully requested a Lyft!");
+});
 
 
 

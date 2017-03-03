@@ -6,6 +6,7 @@ import datetime
 from lyft_rides.auth import ClientCredentialGrant
 from lyft_rides.session import Session
 from lyft_rides.client import LyftRidesClient
+from lyft_rides.auth import AuthorizationCodeGrant
 
 from collections import OrderedDict
 
@@ -31,7 +32,18 @@ app.secret_key = "secretSECRETseekrit"
 def index():
     """Show map.html template."""
 
-    return render_template("map.html")
+    return render_template("home.html")
+
+@app.route('/directions')
+def directions_page():
+	start = request.args.get("start-address")
+	end = request.args.get("end-address")
+
+	print start, end
+
+	return render_template("map.html",
+							start=start,
+							end=end)
 
 @app.route('/store-searches.json', methods=["POST"])
 def store_searches():
@@ -170,7 +182,7 @@ def combine_category(category):
 	return category_filter
 
 @app.route('/get_lyft_info', methods=["POST"])
-def lyft_request():
+def lyft_info_request():
 	start_address = request.form.get("startAddress")
 	end_address = request.form.get("endAddress")
 	start_lat = request.form.get("start_lat")
@@ -221,23 +233,29 @@ def lyft_request():
 
 	print pickup_eta, cost_estimates
 
-	# session = auth_flow.get_session(redirect_url)
-	# client = LyftRidesClient(session)
-	# credentials = session.oauth2credential
-	# response = client.get_ride_types(37.7833, -122.4167)
-	# ride_types = response.json.get('ride_types')
-
-	# response = client.request_ride(
-	#     ride_type=ride_type,
-	#     start_latitude=37.77,
-	#     start_longitude=-122.41,
-	#     end_latitude=37.79,
-	#     end_longitude=-122.41,
-	# )
-	# ride_details = response.json
-	# ride_id = ride_details.get('ride_id')
-
 	return jsonify(return_dict)
+
+# @app.route('/lyft-request', methods=["POST"])
+# def lyft_request():
+# 	auth_flow = AuthorizationCodeGrant(
+#     lyft_client_id,
+#     lyft_client_secret,
+#     ["public", "rides.read", "rides.request", "offline"])
+
+# 	auth_url = auth_flow.get_authorization_url()
+# 	session = auth_flow.get_session(redirect_url)
+# 	client = LyftRidesClient(session)
+# 	credentials = session.oauth2credential
+
+# 	response = client.request_ride(
+# 	    ride_type='lyft',
+# 	    start_latitude=37.77,
+# 	    start_longitude=-122.41,
+# 	    end_latitude=37.79,
+# 	    end_longitude=-122.41,
+# 	)
+# 	ride_details = response.json
+# 	ride_id = ride_details.get('ride_id')
 
 if __name__ == '__main__':
     # debug=True gives us error messages in the browser and also "reloads" our web app
