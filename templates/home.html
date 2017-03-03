@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>SaFe Route</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+
+ <script src="https://code.jquery.com/jquery.js"></script>
+ 
+{% endblock %}
+
+
+{% block body %}
+
+<form action="/directions" method="GET">
+  <div id="homepage-address-input">
+  <strong>Start:</strong><input name="start-address" type="textbox">
+  <br>
+  <strong>End:</strong><input name="end-address" type="textbox">
+  <br>
+  <input id="submit" type="submit" value="Get Directions"></div>
+</form>
+
+<a href="/data-map">Full map of SF</a>
+{% endblock %}
