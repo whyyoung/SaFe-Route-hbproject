@@ -38,15 +38,29 @@ def index():
 def directions_page():
 	start = request.args.get("start-address")
 	end = request.args.get("end-address")
+	lyft = False
 
-	print start, end
+	last_search = get_last_route_search()
+
+	if start == None:
+		start = last_search.starting_location
+		end = last_search.ending_location
+
+	lyft_requested = last_search.lyft_requested
+	lyft_request_filled = last_search.lyft_request_filled
+
+	if (lyft_requested == True) and (lyft_request_filled == False) and (last_search.starting_location == start) and (last_search.ending_location == end):
+		lyft = True
 
 	return render_template("map.html",
 							start=start,
-							end=end)
+							end=end,
+							lyft=lyft)
 
 @app.route('/store-searches.json', methods=["POST"])
 def store_searches():
+	last_search = get_last_route_search()
+
 	data = request.get_json()
 
 	walking_routes = data["routes"]
@@ -54,13 +68,15 @@ def store_searches():
 	ending_location = data["end"]
 	request_date_time = data["datestamp"]
 
+	if (last_search.starting_location != starting_location and
+		last_search.ending_location != ending_location):
+		route_search = RouteSearch(starting_location=starting_location,
+								ending_location=ending_location,
+								walking_routes=walking_routes,
+								request_date_time=request_date_time)
+		db.session.add(route_search)
+		db.session.commit()
 
-	route_search = RouteSearch(starting_location=starting_location,
-							ending_location=ending_location,
-							walking_routes=walking_routes,
-							request_date_time=request_date_time)
-	db.session.add(route_search)
-	db.session.commit()
 	return "OK"
 
 @app.route('/data-map')
@@ -181,6 +197,8 @@ def combine_category(category):
 
 	return category_filter
 
+lyft_location_info = {}
+
 @app.route('/get_lyft_info', methods=["POST"])
 def lyft_info_request():
 	start_address = request.form.get("startAddress")
@@ -189,6 +207,13 @@ def lyft_info_request():
 	start_lng = request.form.get("start_lng")
 	end_lat = request.form.get("end_lat")
 	end_lng = request.form.get("end_lng")
+
+	lyft_location_info = {"start_address": start_address,
+							"end_address": end_address,
+							"start_lat": start_lat,
+							"end_lat": end_lat,
+							"start_lng": start_lng,
+							"end_lng": end_lng}
 
 	# auth_flow = AuthorizationCodeGrant(
 	#     lyft_client_id,
@@ -199,11 +224,11 @@ def lyft_info_request():
 	# auth_url = auth_flow.get_authorization_url()
 
 	auth_flow = ClientCredentialGrant(client_id=lyft_client_id, client_secret=lyft_client_secret, scopes=["public","rides.read"])
-	session = auth_flow.get_session()
+	lyft_session = auth_flow.get_session()
 
-	client = LyftRidesClient(session)
-	response = client.get_ride_types(37.7833, -122.4167)
-	ride_types = response.json.get('ride_types')
+	client = LyftRidesClient(lyft_session)
+	# response = client.get_ride_types(37.7833, -122.4167)
+	# ride_types = response.json.get('ride_types')
 
 	eta_response = client.get_pickup_time_estimates(latitude=float(start_lat), longitude=float(start_lng))
 	pickup_eta = eta_response.json.get('eta_estimates')
@@ -231,31 +256,104 @@ def lyft_info_request():
 			return_dict["primetime_confirmation_token"] = cost_estimates[i_cost]["primetime_confirmation_token"]
 		i_cost += 1
 
-	print pickup_eta, cost_estimates
+	# print pickup_eta, cost_estimates
 
 	return jsonify(return_dict)
 
 # @app.route('/lyft-request', methods=["POST"])
 # def lyft_request():
+
 # 	auth_flow = AuthorizationCodeGrant(
-#     lyft_client_id,
-#     lyft_client_secret,
-#     ["public", "rides.read", "rides.request", "offline"])
+# 	lyft_client_id,
+# 	lyft_client_secret,
+# 	["public", "rides.read", "rides.request", "offline"])
 
-# 	auth_url = auth_flow.get_authorization_url()
-# 	session = auth_flow.get_session(redirect_url)
-# 	client = LyftRidesClient(session)
-# 	credentials = session.oauth2credential
+# 	last_search = get_last_route_search()
 
-# 	response = client.request_ride(
-# 	    ride_type='lyft',
-# 	    start_latitude=37.77,
-# 	    start_longitude=-122.41,
-# 	    end_latitude=37.79,
-# 	    end_longitude=-122.41,
-# 	)
-# 	ride_details = response.json
-# 	ride_id = ride_details.get('ride_id')
+	# auth_url = auth_flow.get_authorization_url()
+	# session['user'] = last_search.lyft_access_token
+
+	# if session['user'] is None:
+	# redirect_url = request.form.get('url')
+
+		# redirect_url = redirect_url.strip()
+		# try:
+		# 	lyft_session = auth_flow.get_session(redirect_url)
+		# except LyftIllegalState:
+		# 	pass
+	# session = auth_flow.get_session(redirect_url)
+	# credential = session.oauth2credential
+	# access_token = credential.access_token
+	
+	# client = LyftRidesClient(session)
+	# credentials = session.oauth2credential
+
+	# response = client.request_ride(
+	#     ride_type='lyft',
+	#     start_latitude=lyft_location_info[start_lat],
+	#     start_longitude=lyft_location_info[start_lng],
+	#     end_latitude=lyft_location_info[end_lat],
+	#     end_longitude=lyft_location_info[end_lng],
+	#     primetime_confirmation_token=lyft_location_info[primetime_confirmation_token],
+	# )
+
+	# ride_details = response.json
+	# ride_id = ride_details.get('ride_id')
+
+	# last_search.lyft_access_token = access_token
+
+	# last_search.lyft_request_filled = True
+
+	# db.session.commmit()
+
+	# print ride_details
+	# print ride_id
+
+	# return "OK"
+
+# @app.route('/lyft-request-code.json', methods=["POST"])
+# def store_auth_code():
+# 	auth_flow = AuthorizationCodeGrant(
+# 		lyft_client_id,
+# 		lyft_client_secret,
+# 		["public", "rides.read", "rides.request", "offline"])
+
+# 	last_search = get_last_route_search()
+
+# 	session['user'] = last_search.lyft_access_token
+
+# 	if session['user'] is None:
+# 		redirect_url = request.form.get('url')
+# 		redirect_url = redirect_url.strip()
+# 		try:
+# 			lyft_session = auth_flow.get_session(redirect_url)
+# 		except LyftIllegalState:
+# 			pass
+# 		session['user'] = lyft_session
+# 		credential = lyft_session.oauth2credential
+# 		access_token = credential.access_token
+# 		last_search.lyft_access_token = access_token
+
+# 		db.session.commit()
+
+# 	return "OK"
+
+@app.route('/lyft-authorization.json')
+def lyft_auth():
+
+	last_search = get_last_route_search()	
+	last_search.lyft_requested = True
+
+	db.session.commit()
+
+	return "OK"
+
+def get_last_route_search():
+	last_search = db.session.query(RouteSearch)
+	last_search = last_search.order_by('id').all()
+	last_search = last_search[-1]
+
+	return last_search
 
 if __name__ == '__main__':
     # debug=True gives us error messages in the browser and also "reloads" our web app

@@ -1,21 +1,9 @@
 {% extends 'base.html' %}
 {% block head %}
+    <link rel="stylesheet" href="/static/css/homepage.css">
     <title>SaFe Route</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
-    <style>
-      /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-      #map {
-        height: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
 
  <script src="https://code.jquery.com/jquery.js"></script>
  
@@ -24,14 +12,31 @@
 
 {% block body %}
 
-<form action="/directions" method="GET">
-  <div id="homepage-address-input">
-  <strong>Start:</strong><input name="start-address" type="textbox">
-  <br>
-  <strong>End:</strong><input name="end-address" type="textbox">
-  <br>
-  <input id="submit" type="submit" value="Get Directions"></div>
-</form>
+<div class="site-wrapper">
+    <div class="site-wrapper-inner">
 
-<a href="/data-map">Full map of SF</a>
+ <!--        <img src="/static/images/SF-Skyline.jpg"> -->
+
+        <h1>SaFe Route</h1>
+
+        <p class="lead">Know your route.</p>
+
+      <form action="/directions" method="GET">
+        <div id="homepage-address-input">
+        <strong>Start: </strong><input name="start-address" type="textbox" class="input-text">
+        <br>
+        <strong>End: </strong><input name="end-address" type="textbox" class="input-text">
+        <br>
+        <input id="submit" type="submit" class="btn btn-lg btn-primary" value="Get Directions"></div>
+      </form>
+
+        <a href="/data-map">Full map of SF</a>
+
+    </div>
+</div>
+
+<footer>
+    <p>Made with love, unicorns and happy thoughts.</p>
+</footer>
+
 {% endblock %}

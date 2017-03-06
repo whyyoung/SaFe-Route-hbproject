@@ -45,12 +45,14 @@ class RouteSearch(db.Model):
     ending_location = db.Column(db.String(200))
     walking_routes = db.Column(db.PickleType())
     request_date_time = db.Column(db.DateTime)
-    # lyft_requested = db.Column(db.Boolean)
+    lyft_requested = db.Column(db.Boolean, default=False)
+    lyft_request_filled = db.Column(db.Boolean, default=False)
+    lyft_access_token = db.Column(db.String(1500))
 
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return "<Starting Location=%s Ending Location=%s" % (self.starting_location,
+        return "<Starting Location=%s Ending Location=%s>" % (self.starting_location,
                 self.ending_location)
 
 class DataSearch(db.Model):

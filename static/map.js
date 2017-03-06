@@ -39,12 +39,28 @@ function deleteMarkers(){
 }
 
 var directionsDisplay = new google.maps.DirectionsRenderer;
+var confirmWindowSeen = false;
+
 // Takes a starting address and an ending address to build a visual walking route
 // on the map as well as written step-by-step directions to the right of the map.
 function getDirections() {
   if (document.getElementById('start-address').value == "None") {
     $("#start-address").attr("value", "Starting Address")
     $("#end-address").attr("value", "Destination Address")
+  // } else if (document.getElementById('lyft-called').value == "True") {
+  //   var urlWithCode = {"url": 'SANDBOX-' + window.location.href};
+  //   debugger;
+  //   $.post('/lyft-request', urlWithCode, function(response) {
+  //       if (response == "OK") {
+  //         alert("You have successfully requested a Lyft and a driver is on the way.");        
+  //       }
+  //     });
+    // } else {
+    //   confirmWindowSeen = true;
+    //   $.post('/lyft-request-code.json', urlWithCode, function(){
+    //   alert("Although you have not requested a Lyft at this time, SaFe Route is authorized to request one for you within the next hour.")
+    //   });
+    // }
   } else {
     walkingRouteStored = []
 
@@ -72,8 +88,6 @@ function getDirections() {
             obj[i] = response.routes[i].overview_path;
             walkingRouteStored.push(obj);
             }
-
-
           }
 
         });
@@ -96,25 +110,10 @@ function getDirections() {
       success: function(){}
       });
       getLyftInfo();
-    }, 2000);
-  };}
+      createLegend();
+    }, 3000);
 
-getDirections();
-
-var click_event_tracker = false;
-
-$('#right-panel').on('DOMNodeInserted', function(){
-  $('td').on('click', function(){
-    if (click_event_tracker == false) {
-      var x = this.dataset.routeIndex;
-      var newMarkers = walkingRouteStored[x];
-      makeBuffer(newMarkers[x]);
-      click_event_tracker = true;
-    }
-  })
-});
-
-function getLyftInfo(){
+    function getLyftInfo(){
       // var startAddress = document.getElementById('start-address').value;
       // var endAddress = document.getElementById('end-address').value;
       var routeLatLng = walkingRouteStored[0][0];
@@ -148,6 +147,22 @@ function getLyftInfo(){
         $('#lyft-request').toggle();
       };
     }
+  };}
+
+getDirections();
+
+var click_event_tracker = false;
+
+$('#right-panel').on('DOMNodeInserted', function(){
+  $('td').on('click', function(){
+    if (click_event_tracker == false) {
+      var x = this.dataset.routeIndex;
+      var newMarkers = walkingRouteStored[x];
+      makeBuffer(newMarkers[x]);
+      click_event_tracker = true;
+    }
+  })
+});
 
 
 // Creates url data get request to filter relevant crime incidents within 100 meters radius of
@@ -187,6 +202,41 @@ function makeBuffer(route) {
 
 //   makeMarker(dateFiltered);
 // }
+var icons = {
+    assault: {
+      name: 'Assault',
+      icon: 'static/images/yellow_MarkerA.png'
+    },
+    robbery: {
+      name: 'Robbery',
+      icon: 'static/images/brown_MarkerR.png'
+    },
+    kidnapping: {
+      name: 'Kidnapping',
+      icon: 'static/images/purple_MarkerK.png'
+    },
+    sex: {
+      name: 'Sex Crimes',
+      icon: 'static/images/blue_MarkerS.png'
+    }
+  };
+
+function createLegend(){
+  // debugger;
+  if (document.getElementById('legend').style[0] != "z-index") {
+  //   $("#legend").attr("value", "True")
+    var legend = document.getElementById('legend');
+    for (var key in icons) {
+        var type = icons[key];
+        var name = type.name;
+        var icon = type.icon;
+        var div = document.createElement('div');
+        div.innerHTML = '<img src="' + icon + '"> ' + name;
+        legend.appendChild(div);
+      }
+    map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
+  };
+};
 
 // Receives relevant crime data from makeBuffer function. Parses the data received
 // to extract location for the marker along with information needed to populate the
@@ -194,44 +244,44 @@ function makeBuffer(route) {
 // window to each marker along with a listener to call the window.
 function makeMarker(data) {
   click_event_tracker = false;
+  var imageS = {
+    url: 'static/images/blue_MarkerS.png',
+    // size: new google.maps.Size(50, 50),
+    origin: new google.maps.Point(0, 0),
+    anchor: new google.maps.Point(17, 34),
+    // scaledSize: new google.maps.Size(30,30)
+  };
+
+  var imageA = {
+    url: 'static/images/yellow_MarkerA.png',
+    // size: new google.maps.Size(50, 50),
+    origin: new google.maps.Point(0, 0),
+    anchor: new google.maps.Point(17, 34),
+    // scaledSize: new google.maps.Size(30,30)
+  };
+
+  var imageK = {
+    url: 'static/images/purple_MarkerK.png',
+    // size: new google.maps.Size(50, 50),
+    origin: new google.maps.Point(0, 0),
+    anchor: new google.maps.Point(17, 34),
+    // scaledSize: new google.maps.Size(30,30)
+  }
+
+  var imageR = {
+    url: 'static/images/brown_MarkerR.png',
+    // size: new google.maps.Size(50, 50),
+    origin: new google.maps.Point(0, 0),
+    anchor: new google.maps.Point(17, 34),
+    // scaledSize: new google.maps.Size(30,30)
+  }
+
   $.each(data, function(i, entry) {
       var longitude = parseFloat(entry["location"]["coordinates"][0])
       var latitude = parseFloat(entry["location"]["coordinates"][1])
       var category = entry["category"]
 
       var newLatlng = {lat: latitude, lng: longitude}
-
-      var imageS = {
-        url: 'static/images/blue_MarkerS.png',
-        // size: new google.maps.Size(50, 50),
-        origin: new google.maps.Point(0, 0),
-        anchor: new google.maps.Point(17, 34),
-        // scaledSize: new google.maps.Size(30,30)
-      };
-
-      var imageA = {
-        url: 'static/images/yellow_MarkerA.png',
-        // size: new google.maps.Size(50, 50),
-        origin: new google.maps.Point(0, 0),
-        anchor: new google.maps.Point(17, 34),
-        // scaledSize: new google.maps.Size(30,30)
-      };
-
-      var imageK = {
-        url: 'static/images/purple_MarkerK.png',
-        // size: new google.maps.Size(50, 50),
-        origin: new google.maps.Point(0, 0),
-        anchor: new google.maps.Point(17, 34),
-        // scaledSize: new google.maps.Size(30,30)
-      }
-
-      var imageR = {
-        url: 'static/images/brown_MarkerR.png',
-        // size: new google.maps.Size(50, 50),
-        origin: new google.maps.Point(0, 0),
-        anchor: new google.maps.Point(17, 34),
-        // scaledSize: new google.maps.Size(30,30)
-      }
 
       // places a marker on the map at each incident location. Personal Crimes have customized markers.
       if (category == "ASSAULT") {
@@ -300,9 +350,26 @@ function makeMarker(data) {
     });
   };
 
-$('#lyft-request').on('click', function() {
-  alert("You have successfully requested a Lyft!");
-});
+// function lyftRequest(){
+//   $.post('/lyft-request', function() {
+//   alert("You have successfully requested a Lyft!");
+//   });
+// };
+
+function lyftAuthorization(){
+  // if (document.getElementById('lyft-called').value == "False") {
+    // $.get('/lyft-authorization.json', function(){
+    //   confirmWindowSeen = false;
+      alert("You are being redirected to Lyft's website.");
+      window.location.replace("https://ride.lyft.com");
+      // window.location.replace("https://api.lyft.com/oauth/authorize?scope=profile+offline+rides.read+public+rides.request&state=IEKGRItbhBWkY4OevuoW4WTs2iFQjudC&response_type=code&client_id=MY8ON6erEeyi");
+    // });
+  // } else {
+  //   lyftRequest();
+  // }
+};
+
+$('#lyft-request').on('click', lyftAuthorization);
 
 
 
