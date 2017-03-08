@@ -8,7 +8,8 @@ function initMap() {
     zoom: 15,
     center: {lat: 37.7749, lng: -122.4194}
   });
-  $('#lyft-request').hide();};
+  $('#lyft-request').hide();
+  $('#legend').hide();};
 
 initMap();
 
@@ -144,7 +145,7 @@ function getDirections() {
         // alert("You have successfully requested a Lyft and a driver is on the way!");
         $('p').html("ETA: " + minutes + "min, " + seconds + "sec" + "<br>" +
                     "Cost: $" + minDollars + " - $" + maxDollars)
-        $('#lyft-request').toggle();
+        $('#lyft-request').show();
       };
     }
   };}
@@ -218,12 +219,16 @@ var icons = {
     sex: {
       name: 'Sex Crimes',
       icon: 'static/images/blue_MarkerS.png'
+    },
+    other: {
+      name: 'Other',
+      icon: 'static/images/red_MarkerO.png',
     }
   };
 
 function createLegend(){
   // debugger;
-  if (document.getElementById('legend').style[0] != "z-index") {
+  if ($('#legend')[0].outerText == "Legend") {
   //   $("#legend").attr("value", "True")
     var legend = document.getElementById('legend');
     for (var key in icons) {
@@ -234,7 +239,8 @@ function createLegend(){
         div.innerHTML = '<img src="' + icon + '"> ' + name;
         legend.appendChild(div);
       }
-    map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
+    $('#legend').show()
+    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(legend);
   };
 };
 
@@ -274,6 +280,12 @@ function makeMarker(data) {
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(17, 34),
     // scaledSize: new google.maps.Size(30,30)
+  }
+
+  var imageO = {
+    url: 'static/images/red_MarkerO.png',
+    origin: new google.maps.Point(0, 0),
+    anchor: new google.maps.Point(17, 34),
   }
 
   $.each(data, function(i, entry) {
@@ -321,7 +333,7 @@ function makeMarker(data) {
                 position: newLatlng,
                 map: map,
                 title: entry["category"],
-                // icon: image
+                icon: imageO
               });
         markers.push(marker);
       };

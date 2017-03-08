@@ -3,94 +3,107 @@
 <title>Directions</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
-    <style>
-      /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-      #map {
-        height: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-
-      #right-panel {
-        font-family: 'Roboto','sans-serif';
-        line-height: 30px;
-        padding-left: 10px;
-      }
-
-      #right-panel select, #right-panel input {
-        font-size: 15px;
-      }
-
-      #right-panel select {
-        width: 100%;
-      }
-
-      #right-panel i {
-        font-size: 12px;
-      }
-      #right-panel {
-        height: 100%;
-        float: right;
-        width: 390px;
-        overflow: auto;
-      }
-      #map {
-        margin-right: 400px;
-      }
-      #legend {
-        font-family: Arial, sans-serif;
-        background: #fff;
-        padding: 10px;
-        margin: 10px;
-        border: 3px solid #000;
-      }
-      #legend h3 {
-        margin-top: 0;
-      }
-      #legend img {
-        vertical-align: middle;
-      }
-      @media print {
-        #map {
-          height: 500px;
-          margin: 0;
-        }
-        #right-panel {
-          float: none;
-          width: auto;
-        }
-      }
-    </style>
-
+    <link rel="stylesheet" href="/static/css/map.css">
+     
  <script src="https://code.jquery.com/jquery.js"></script>
  
 {% endblock %}
 
+<!-- <div id="lyft-web-button-parent"></div>
+<script type="text/javascript">
+!function(e,t,n,o,l,i,a,c,d,r,u,y,f,m,b,s){
+  var B=t.createElement('script');B.async=!0,
+  B.onload=function(){s!==o&&(e[s]=e[o],delete e[o]),
+  b!==l&&(e[b]=e[l],delete e[l]); var n={address:d,latitude:r,longitude:u,name:y};e[s].initialize({clientId:i,clientToken:a,
+  googleApiKey:c,
+  location:n,
+  objectName:s,
+  parentElement:t.body}),
+
+  e[b].initialize({clientId:i,
+  clientToken:a,
+  location:n,
+  objectName:b,
+  onClick:function(){return e[s].open(),!1},
+  parentElement:f,theme:m})},
+  B.src=n,f.insertBefore(B,f.childNodes[0])}(window,document,
+'https://cdn.lyft.com/lyft-web-sdk/1.1.2/lyftWebButton.min.js','lyftWebModal',
+'lyftWebButton','MY8ON6erEeyi',
+'gAAAAABYr0m-jXBie9EGNywUURElMft_Q27l2Dcewh2qYvPnd5naiXm7CW58tcn8MwyFDk7RcHJ9K6DeyuYwbNPfW38KGbJM8tg9aQAaRmgVuM92iPiRGJjEQ7iFRfq930Fw29e8zpbCMZuERaTrSXaEQXs9jtJ2y1mEN89_SaL6xxmkWBakA18=',
+'',
+'',
+'','','',
+document.getElementById('lyft-web-button-parent'),
+'mulberry-dark','lyftWebButton','lyftWebModal'
+);
+</script>
+
+<div id="lyft-web-button-parent"></div>
+<script type="text/javascript">
+!function(e,t,n,o,l,i,a,c,d,r,u,y,f,m,b,s){var B=t.createElement('script');B.async=!0,
+B.onload=function(){s!==o&&(e[s]=e[o],delete e[o]),b!==l&&(e[b]=e[l],delete e[l]);
+var n={address:d,latitude:r,longitude:u,name:y};e[s].initialize({clientId:i,clientToken:a,
+googleApiKey:c,location:n,objectName:s,parentElement:t.body}),e[b].initialize({clientId:i,
+clientToken:a,location:n,objectName:b,onClick:function(){return e[s].open(),!1},
+parentElement:f,theme:m})},B.src=n,f.insertBefore(B,f.childNodes[0])}(window,document,
+'https://cdn.lyft.com/lyft-web-sdk/1.1.2/lyftWebButton.min.js','lyftWebModal',
+'lyftWebButton','MY8ON6erEeyi',
+'gAAAAABYr0m-jXBie9EGNywUURElMft_Q27l2Dcewh2qYvPnd5naiXm7CW58tcn8MwyFDk7RcHJ9K6DeyuYwbNPfW38KGbJM8tg9aQAaRmgVuM92iPiRGJjEQ7iFRfq930Fw29e8zpbCMZuERaTrSXaEQXs9jtJ2y1mEN89_SaL6xxmkWBakA18=',
+'',
+'683 Sutter St, San Francisco, CA 94102, USA',
+'37.7886679','-122.41149869999998','Hackbright Academy',
+document.getElementById('lyft-web-button-parent'),
+'mulberry-dark','lyftWebButton','lyftWebModal'
+);
+</script>
+ -->
 
 {% block body %}
-  
+
+    <!-- Static navbar -->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button"
+                        class="navbar-toggle collapsed"
+                        data-toggle="collapse"
+                        data-target="#navbar"
+                        aria-expanded="false"
+                        aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">SaFe Route</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/data-map">Full Map</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+  <div class="container-fluid"
   <div id="address-input">
   <strong>Start:</strong><input id="start-address" type="textbox" value="{{start}}">
-  <br>
   <strong>End:</strong><input id="end-address" type="textbox" value="{{end}}">
-  <br>
   <input id="get-directions" type="button" value="Get Directions"></div>
-  <div id="right-panel">
-    <div id="lyft-info">
-      <input id="lyft-request" type="button" value="Request a Lyft!">
-      <input id="lyft-called" type="hidden" value="{{lyft}}">
-      <p></p>
-    </div>
+  <div id="right-panel"></div>
+  <div id="lyft-info">
+    <button id="lyft-request">Request a  <img src="static/images/lyft_16px@2x.png"></button>
+<!--     <input id="lyft-request" type="button" value="Request a Lyft!"> -->
+    <input id="lyft-called" type="hidden" value="{{lyft}}">
+    <p></p>
   </div>
-    <div id="map"></div>
-    <div id="legend"><h3>Legend</h3></div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAv622etcuWU5f7UHaPWS0yxRwIWbnDYA8"></script>
-    <script src="/static/map.js"></script>
+  <div id="map"></div>
+  <div id="legend"><h3>Legend</h3></div>
+</div>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAv622etcuWU5f7UHaPWS0yxRwIWbnDYA8"></script>
+  <script src="/static/map.js"></script>
   <!--   <input type="hidden" id="data-key" value="{{data_key}}"> -->
+
+<footer>
+</footer>
     
 {% endblock %}

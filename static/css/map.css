@@ -1,0 +1,162 @@
+body {
+    background-size: cover;
+    background: #F7F5E6;
+    color: #333A56;
+    font-family: 'Open Sans','sans-serif';
+}
+
+input[type="button"] {
+    background: #52658F;
+    color: #E8E8E8;
+}
+input[type="submit"] {
+    background: #52658F;
+    color: #E8E8E8;
+}
+
+.form-wrapper input[type="submit"] {
+   display: block;
+   background: #0dd39d;
+   color: #0dd39d;
+   border: none;
+   padding: 10px 20px;
+   -moz-border-radius: 2px;
+   border-radius: 2px;
+   cursor: pointer;
+}
+
+.navbar {
+  background: #333A56;
+  border: none;
+  color: #E8E8E8;
+  font-family: 'Roboto', sans-serif;
+}
+
+.navbar-default .navbar-brand, .navbar-default .navbar-nav li a {
+  color: #E8E8E8;
+  font-family: 'Roboto', sans-serif;
+
+}
+
+.navbar-default .navbar-brand:hover, .navbar-default .navbar-nav li a:hover {
+  color: #E1CA96;
+}
+
+#address-input {
+    margin-left: 5px;
+    margin-bottom: 10px;
+}
+
+
+/* Always set the map height explicitly to define the size of the div
+* element that contains the map. */
+#map {
+    height: 100%;
+    margin: 10px;
+}
+/* Optional: Makes the sample page fill the window. */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#right-panel {
+    font-family: 'Open Sans','sans-serif';
+    line-height: 30px;
+/*    padding-left: 10px;*/
+    padding-right: 10px;
+}
+
+#right-panel select, #right-panel input {
+    font-size: 15px;
+    font-family: 'Open Sans','sans-serif';
+    background-color: #F7F5E6;
+}
+
+#right-panel select {
+    width: 100%;
+}
+
+#right-panel i {
+    font-size: 12px;
+    font-family: 'Open Sans','sans-serif';
+    background-color: #F7F5E6;
+}
+
+#right-panel {
+    height: 80%;
+    float: right;
+    width: 390px;
+    overflow: auto;
+}
+
+#right-panel-choices {
+    font-family: 'Open Sans','sans-serif';
+    line-height: 30px;
+    padding-right: 10px;
+    height: 100%;
+    float: right;
+    width: 390px;
+    overflow: auto;
+}
+
+#lyft-info {
+    float: right;
+    width: 390px;
+    clear: right;
+    height: 20%;
+    text-align: center;
+    font-family: 'Open Sans', sans-serif;
+}
+
+#map {
+    margin-right: 400px;
+}
+
+#legend {
+    font-family: 'Open Sans', sans-serif;
+    background: #F7F5E6;
+    padding: 10px;
+    margin: 10px;
+    border: 3px solid #000;
+}
+#legend h3 {
+    margin-top: 0;
+}
+#legend img {
+    vertical-align: middle;
+}
+@media print {
+    #map {
+      height: 500px;
+      margin: 0;
+    }
+    #right-panel {
+      float: none;
+      width: auto;
+    }
+}
+
+.input-text {
+    color: black;
+    background-color: #F7F5E6;
+    font-family: 'Open Sans', sans-serif;
+}
+
+button {
+    background-color: #F3F3F5;
+    font-family: 'Gotham', sans-serif;
+}
+
+/* The footer always appears at the bottom of the browser window. */
+
+footer {
+    position: fixed;
+    bottom: 0;
+    z-index: 9999;
+    width: 100%;  /* required because fixed position */
+    text-align: center;
+    color: #F7F5E6;
+    font-family: 'Open Sans', sans-serif;
+}

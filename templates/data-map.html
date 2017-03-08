@@ -3,52 +3,65 @@
     <title>Crime Map</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
-    <style>
-      /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-      #map {
-        height: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
-
+    <link rel="stylesheet" href="/static/css/map.css">
  <script src="https://code.jquery.com/jquery.js"></script>
  
 {% endblock %}
 
 
 {% block body %}
-  
+    <!-- Static navbar -->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button"
+                        class="navbar-toggle collapsed"
+                        data-toggle="collapse"
+                        data-target="#navbar"
+                        aria-expanded="false"
+                        aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">SaFe Route</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/directions">Directions</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+  <div id="right-panel-choices">
   <form>
-  <strong>Category:</strong>
-  <br>Personal Crimes:
-  <input class="category" type="checkbox" value="assault">Assault
-  <input class="category" type="checkbox" value="robbery">Robbery
-  <input class="category" type="checkbox" value="kidnapping">False Imprisonment/Kidnapping
-  <input class="category" type="checkbox" value="sex">Sex-Related Crimes
-  <br>Property Crimes:
-  <input class="category" type="checkbox" value="theft">Larceny/Theft (Vehicular incl.)
-  <input class="category" type="checkbox" value="burglary">Burglary
-  <input class="category" type="checkbox" value="trespassing">Trespassing/Loitering
-  <input class="category" type="checkbox" value="vandalism">Vandalism/Arson
-  <input class="category" type="checkbox" value="fraud">Fraud/Forgery/Embezzlement
-  <input class="category" type="checkbox" value="bribery">Extortion/Bribery
-  <br>Statuatory Crimes:
-  <input class="category" type="checkbox" value="alcohol">Alcohol-Related Crimes
-  <input class="category" type="checkbox" value="weapon">Weapon Laws
-  <input class="category" type="checkbox" value="drug/narcotic">Drug/Narcotic
-  <br>Other:
-  <input class="category" type="checkbox" value="secondary">Secondary Codes
-  <input class="category" type="checkbox" value="disorder">Disorderly Conduct/Drunkenness
-  <input class="category" type="checkbox" value="non-criminal">Non-Criminal
-  <input class="category" type="checkbox" value="misc">Miscellaneous
+  <h4>Category:</h4>
+  <input id="select-all" class="category" type="checkbox"> Select ALL Categories<br>
+  <strong>Personal Crimes:</strong><br>
+  <input class="category" type="checkbox" value="assault"> Assault
+  <input class="category" type="checkbox" value="robbery"> Robbery
+  <input class="category" type="checkbox" value="kidnapping"> Kidnapping
+  <input class="category" type="checkbox" value="sex"> Sex-Related Crimes
+  <br><strong>Property Crimes:</strong><br>
+  <input class="category" type="checkbox" value="theft"> Larceny/Theft
+  <input class="category" type="checkbox" value="burglary"> Burglary
+  <input class="category" type="checkbox" value="trespassing"> Trespassing/Loitering<br>
+  <input class="category" type="checkbox" value="vandalism"> Vandalism/Arson
+  <input class="category" type="checkbox" value="fraud"> Fraud/Forgery/Embezzlement<br>
+  <input class="category" type="checkbox" value="bribery"> Extortion/Bribery
+  <br><strong>Statuatory Crimes:</strong><br>
+  <input class="category" type="checkbox" value="alcohol"> Alcohol-Related Crimes
+  <input class="category" type="checkbox" value="weapon"> Weapon Laws<br>
+  <input class="category" type="checkbox" value="drug/narcotic"> Drug/Narcotic
+  <br><strong>Other:</strong><br>
+  <input class="category" type="checkbox" value="secondary"> Secondary Codes
+  <input class="category" type="checkbox" value="disorder"> Disorderly Conduct/Drunkenness<br>
+  <input class="category" type="checkbox" value="non-criminal"> Non-Criminal
+  <input class="category" type="checkbox" value="misc"> Miscellaneous
+
 <br>
-  <strong>Day of Week:</strong>
+  <h4>Day of Week:</h4>
   <select id="day">
     <option value="all">All</option>
     <option value="monday">Monday</option>
@@ -60,7 +73,7 @@
     <option value="sunday">Sunday</option>
   </select>
   <br>
-    <strong>Time of Day:</strong>
+    <h4>Time of Day:</h4>
     <select id="time">
     <option value="all">All</option>
     <option value="0-3">12AM-3AM</option>
@@ -73,21 +86,22 @@
     <option value="21-0">9PM-12AM</option>
   </select>
   <br>
-  <strong>District:</strong>
-  <input class="district" type="checkbox" value="bayview">Bayview
-  <input class="district" type="checkbox" value="ingleside">Ingleside
-  <input class="district" type="checkbox" value="central">Central
-  <input class="district" type="checkbox" value="northern">Northern
-  <input class="district" type="checkbox" value="southern">Southern
-  <input class="district" type="checkbox" value="mission">Mission
-  <input class="district" type="checkbox" value="tenderloin">Tenderloin
-  <input class="district" type="checkbox" value="park">Park
-  <input class="district" type="checkbox" value="taraval">Taraval
-  <input class="district" type="checkbox" value="richmond">Richmond
-  <br>
+  <h4>District:</h4>
+  <input id="select-all" class="district" type="checkbox"> Select ALL Districts<br>
+  <input class="district" type="checkbox" value="bayview"> Bayview
+  <input class="district" type="checkbox" value="ingleside"> Ingleside
+  <input class="district" type="checkbox" value="central"> Central
+  <input class="district" type="checkbox" value="northern"> Northern
+  <input class="district" type="checkbox" value="southern"> Southern<br>
+  <input class="district" type="checkbox" value="mission"> Mission
+  <input class="district" type="checkbox" value="tenderloin"> Tenderloin
+  <input class="district" type="checkbox" value="park"> Park
+  <input class="district" type="checkbox" value="taraval"> Taraval
+  <input class="district" type="checkbox" value="richmond"> Richmond<br>
+
   <input id="submit" type="submit">
   </form>
-  <a href="/directions">Directions</a>
+</div>
 
     <div id="map"></div>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAv622etcuWU5f7UHaPWS0yxRwIWbnDYA8"></script>

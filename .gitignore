@@ -4,3 +4,4 @@ secrets.sh
 .DS_Store
 seed_data/
 static/images/LYFT_LOGO
+misc_info.txt

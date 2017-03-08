@@ -1,26 +1,75 @@
-body {
-    background: #333 url("/static/images/SF-Skyline.jpg");
+/*body {
+    background: #333 url("/static/images/girl-crossing-street-on-a-yellow-crosswalk-picjumbo-com.jpg");
     background-size: cover;
-    color: white;
+    color: black;
     text-align: center;
+}*/
+/*div.container {
+    height: 10em;
+    position: relative;
+}*/
+a {
+    font-size: 14pt;
 }
 
-/* site-wrapper and site-wrapper-inner are to vertically center content using
-   table/table-cell vertical centering. */
+.lead {
+    font-size: 28pt;
+}
 
-.site-wrapper {
-    display: table;
+#homepage-address-input {
+    padding-top: 3%;
+}
+
+.background-image {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 1;
+
+    background-image: url('/static/images/girl-crossing-street-on-a-yellow-crosswalk-picjumbo-com.jpg');
+    background-size: cover;
     width: 100%;
     height: 100%;
-}
-
-.site-wrapper-inner {
-    display: table-cell;
-    vertical-align: middle;
+  filter: blur(4px) grayscale(100%);
 }
 
 .input-text {
     color: black;
+    background-color: #E8E8E8;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.content {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    margin-left: 20px;
+    margin-right: 20px;
+    text-align: center;
+    color: #333A56;
+}
+
+h1 {
+    font-family: 'Roboto', sans-serif;
+    font-size: 72pt;
+    padding-top: 10px;
+}
+
+h5 {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 20px;
+    padding-top: 10px;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+#submit {
+    background-color: #52658F;
+    color: #F7F5E6;
+    font-family: 'Open Sans', sans-serif;
 }
 
 /* The footer always appears at the bottom of the browser window. */
@@ -28,5 +77,9 @@ body {
 footer {
     position: fixed;
     bottom: 0;
+    z-index: 9999;
     width: 100%;  /* required because fixed position */
+    text-align: center;
+    color: #F7F5E6;
+    font-family: 'Open Sans', sans-serif;
 }

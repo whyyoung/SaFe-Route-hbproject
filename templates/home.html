@@ -12,27 +12,24 @@
 
 {% block body %}
 
-<div class="site-wrapper">
-    <div class="site-wrapper-inner">
+<div class="background-image"></div>
+<div class="content">
 
- <!--        <img src="/static/images/SF-Skyline.jpg"> -->
+    <h1>SaFe Route</h1>
 
-        <h1>SaFe Route</h1>
+    <p class="lead">Know your route.</p>
 
-        <p class="lead">Know your route.</p>
+    <div id="homepage-address-input" class="container">
+    <form action="/directions" method="GET">
+    <h5>Starting Location</h5><input name="start-address" type="textbox" class="input-text">
+    <h5>Ending Location</h5><input name="end-address" type="textbox" class="input-text">
+    <br>
+    <br>
+    <input id="submit" type="submit" class="btn btn-md btn-primary" value="Get Directions">
+    </form></div>
 
-      <form action="/directions" method="GET">
-        <div id="homepage-address-input">
-        <strong>Start: </strong><input name="start-address" type="textbox" class="input-text">
-        <br>
-        <strong>End: </strong><input name="end-address" type="textbox" class="input-text">
-        <br>
-        <input id="submit" type="submit" class="btn btn-lg btn-primary" value="Get Directions"></div>
-      </form>
+    <br><a href="/data-map" style="color: #333A56;">Full map of SF</a>
 
-        <a href="/data-map">Full map of SF</a>
-
-    </div>
 </div>
 
 <footer>

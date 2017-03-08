@@ -5,7 +5,7 @@ var markers = [];
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     zoom: 13,
-    center: {lat: 37.7749, lng: -122.4194}
+    center: {lat: 37.76923221536624, lng: -122.445154465438}
   });};
 
 initMap();
@@ -188,5 +188,31 @@ function makeMarker(data) {
 
     });
   };
+
+$('#select-all.category').click(function(event) {   
+    if(this.checked) {
+        // Iterate each checkbox
+        $(":checkbox[class = 'category']").each(function() {
+            this.checked = true;                       
+        });
+    } else {
+      $(":checkbox[class = 'category']").each(function() {
+            this.checked = false; 
+        });
+    }
+});
+
+$('#select-all.district').click(function(event) {   
+    if(this.checked) {
+        // Iterate each checkbox
+        $(":checkbox[class = 'district']").each(function() {
+            this.checked = true;                       
+        });
+    } else {
+      $(":checkbox[class = 'district']").each(function() {
+            this.checked = false; 
+        });
+    }
+});
 
 

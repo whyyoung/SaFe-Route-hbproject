@@ -42,9 +42,9 @@ def directions_page():
 
 	last_search = get_last_route_search()
 
-	if start == None:
-		start = last_search.starting_location
-		end = last_search.ending_location
+	# if start == None:
+	# 	start = last_search.starting_location
+	# 	end = last_search.ending_location
 
 	lyft_requested = last_search.lyft_requested
 	lyft_request_filled = last_search.lyft_request_filled
@@ -109,11 +109,15 @@ def get_filtered_data():
 	if district is not None:
 		district = district.split(",")
 		for d in district:
-			district_filter.append(d.upper())
+			if d != "on":
+				district_filter.append(d.upper())
 
 	if category is not None:
 		category = category.split(",")
-		category_filter = combine_category(category)
+		if category[0] == "on":
+			category_filter = combine_category(category[1:])
+		else:
+			category_filter = combine_category(category)
 
 	if day == "all":
 		day_filter = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -129,9 +133,10 @@ def get_filtered_data():
 											Crime.Category.in_((category_filter)) &
 											Crime.Day_of_Week.in_((day_filter)) &
 											(time[0] < Crime.Time) &
-											(Crime.Time <= time[1])) 
+											(Crime.Time <= time[1]))
 
 	query_results = query_results.order_by('Date').all()
+
 	query_results = query_results[-50:]
 
 	results = {}
