@@ -35,7 +35,7 @@ a {
 
 .input-text {
     color: black;
-    background-color: #E8E8E8;
+    background-color: #F7F5E6;
     font-family: 'Open Sans', sans-serif;
 }
 
@@ -58,8 +58,9 @@ h1 {
 
 h5 {
     font-family: 'Open Sans', sans-serif;
-    font-size: 20px;
+    font-size: 19px;
     padding-top: 10px;
+    font-weight: 600;
 }
 
 body {

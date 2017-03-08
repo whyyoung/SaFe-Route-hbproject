@@ -30,22 +30,23 @@ app.secret_key = "secretSECRETseekrit"
 
 @app.route('/')
 def index():
-    """Show map.html template."""
+    """Show home.html template."""
 
     return render_template("home.html")
 
 @app.route('/directions')
 def directions_page():
+	"""Shows map.html that renders route and text directions from start and end address input.
+	Uses Google Maps API for direction generation."""
+
 	start = request.args.get("start-address")
 	end = request.args.get("end-address")
 	lyft = False
 
 	last_search = get_last_route_search()
 
-	# if start == None:
-	# 	start = last_search.starting_location
-	# 	end = last_search.ending_location
-
+	# Checks if the last route that was searched requested a Lyft. If so, the last start and end location
+	# will be auto-filled into the input.
 	lyft_requested = last_search.lyft_requested
 	lyft_request_filled = last_search.lyft_request_filled
 
@@ -59,6 +60,8 @@ def directions_page():
 
 @app.route('/store-searches.json', methods=["POST"])
 def store_searches():
+	"""Takes starting and ending location from map.html. Adds search parameters, route alternatives,
+	and request time and date as a RouteSearch object to a SQL database."""
 	last_search = get_last_route_search()
 
 	data = request.get_json()
@@ -81,14 +84,15 @@ def store_searches():
 
 @app.route('/data-map')
 def show_map():
+	"""Show data-map.html template."""
 
 	return render_template("data-map.html")
 
-# Takes user input from data-map.html/js to query and filter results from 'crimes' database.
-# Returns rows to data-map.js to populate map markers and info windows.
+
 @app.route('/data-map.json')
 def get_filtered_data():
-
+	"""Takes user filter input from data-map.html. Combines the filters to build a SQLAlchemy query to
+	send to the 'crimes' database. Response is returned to populate map markers and info windows."""
 	district = request.args.get("district")
 	time = request.args.get("time")
 	day = request.args.get("day")
@@ -106,12 +110,15 @@ def get_filtered_data():
 	category_filter = []
 	day_filter = []
 
+	# Combines districts into correct format for SQL query.
 	if district is not None:
 		district = district.split(",")
 		for d in district:
 			if d != "on":
 				district_filter.append(d.upper())
 
+	# Combines categories into correct format for SQL query. Calls helper function to include all relevant
+	# additional crime categories.
 	if category is not None:
 		category = category.split(",")
 		if category[0] == "on":
@@ -119,11 +126,13 @@ def get_filtered_data():
 		else:
 			category_filter = combine_category(category)
 
+	# Combines days of the week into correct format for SQL query if all days are chosen.
 	if day == "all":
 		day_filter = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 	else:
 		day_filter.append(day.title())
 
+	# Calls helper function to parse timeframe windows to build SQL query.
 	if time == "all":
 		time = ['00:00', '24:00']
 	else:
@@ -135,8 +144,8 @@ def get_filtered_data():
 											(time[0] < Crime.Time) &
 											(Crime.Time <= time[1]))
 
+	# Results are ordered by date and only the most recent 50 are returned. Database houses 2mil+ records.
 	query_results = query_results.order_by('Date').all()
-
 	query_results = query_results[-50:]
 
 	results = {}
@@ -156,6 +165,15 @@ def get_filtered_data():
 
 # Passes time frames to SQL query.
 def time_filter(timeframe):
+	"""Passes time frames to SQL query.
+
+	>>> time_filter("0-3")
+	['00:00', '03:00']
+
+	>>> time_filter("18-21")
+	['18:00', '21:00']
+
+	"""
 	time_dict = {"0-3": ['00:00', '03:00'],
 				"3-6": ['03:00', '06:00'],
 				"6-9": ['06:00', '09:00'],
@@ -167,8 +185,16 @@ def time_filter(timeframe):
 	
 	return time_dict[timeframe]
 
-# Combines categories to pass to SQL query.
 def combine_category(category):
+	"""Takes in categories as a list and combines categories/subcategories to pass to SQL query.
+
+	>>> combine_category(["misc"])
+	['RECOVERED VEHICLE', 'OTHER OFFENSES', 'SUICIDE', 'FAMILY OFFENSES', 'WARRANTS', 'RUNAWAY', 'MISSING PERSON', 'GAMBLING']
+	>>> combine_category(["assault","alcohol","kidnapping","theft"])
+	['ASSAULT', 'DRIVING UNDER THE INFLUENCE', 'LIQUOR LAWS', 'KIDNAPPING', 'VEHICLE THEFT', 'LARCENY/THEFT', 'STOLEN PROPERTY']
+	>>> combine_category(["sex","vandalism"])
+	['SEX OFFENSES, NON FORCIBLE', 'SEX OFFENSES, FORCIBLE', 'PROSTITUION', 'PORNOGRAPHY/OBSCENE MAT', 'VANDALISM', 'ARSON']
+	"""
 
 	category_filter = []
 
@@ -202,10 +228,13 @@ def combine_category(category):
 
 	return category_filter
 
+# Stores lyft location information for future implementation of direct Lyft request.
 lyft_location_info = {}
 
 @app.route('/get_lyft_info', methods=["POST"])
 def lyft_info_request():
+	"""Takes starting and ending addresses along with lat lngs to pass to Lyft API. Returns ETA of driver and 
+	cost of a Lyft ride."""
 	start_address = request.form.get("startAddress")
 	end_address = request.form.get("endAddress")
 	start_lat = request.form.get("start_lat")
@@ -220,21 +249,14 @@ def lyft_info_request():
 							"start_lng": start_lng,
 							"end_lng": end_lng}
 
-	# auth_flow = AuthorizationCodeGrant(
-	#     lyft_client_id,
-	#     lyft_client_secret,
-	#     ["public","rides.request"],
-	#     sandbox_mode=True,
-	# )
-	# auth_url = auth_flow.get_authorization_url()
 
+	# Access to public endpoints via Lyft API.
 	auth_flow = ClientCredentialGrant(client_id=lyft_client_id, client_secret=lyft_client_secret, scopes=["public","rides.read"])
 	lyft_session = auth_flow.get_session()
 
 	client = LyftRidesClient(lyft_session)
-	# response = client.get_ride_types(37.7833, -122.4167)
-	# ride_types = response.json.get('ride_types')
 
+	# Requests ETA of driver from Lyft API.
 	eta_response = client.get_pickup_time_estimates(latitude=float(start_lat), longitude=float(start_lng))
 	pickup_eta = eta_response.json.get('eta_estimates')
 	return_dict = {}
@@ -247,6 +269,7 @@ def lyft_info_request():
 			return_dict["eta_seconds"] = pickup_eta[i_eta]["eta_seconds"]
 		i_eta += 1
 
+	# Requests cost estimate range from Lyft API.
 	cost_response = client.get_cost_estimates(start_latitude=float(start_lat),
 											start_longitude=float(start_lng),
 											end_latitude=float(end_lat),
@@ -261,9 +284,30 @@ def lyft_info_request():
 			return_dict["primetime_confirmation_token"] = cost_estimates[i_cost]["primetime_confirmation_token"]
 		i_cost += 1
 
-	# print pickup_eta, cost_estimates
-
+	# Returns responses to show in DOM.
 	return jsonify(return_dict)
+
+@app.route('/lyft-authorization.json')
+def lyft_auth():
+	"""Updates the last route search lyft_requested field to True when Lyft Request button is clicked."""
+	last_search = get_last_route_search()	
+	last_search.lyft_requested = True
+
+	db.session.commit()
+
+	return "OK"
+
+def get_last_route_search():
+	"""Obtains the last route search object."""
+	last_search = db.session.query(RouteSearch)
+	last_search = last_search.order_by('id').all()
+	last_search = last_search[-1]
+
+	return last_search
+
+
+###############################################################################
+# BELOW IS FOR FUTURE IMPLEMENTATION OF LYFT RIDE REQUESTS.
 
 # @app.route('/lyft-request', methods=["POST"])
 # def lyft_request():
@@ -342,23 +386,6 @@ def lyft_info_request():
 # 		db.session.commit()
 
 # 	return "OK"
-
-@app.route('/lyft-authorization.json')
-def lyft_auth():
-
-	last_search = get_last_route_search()	
-	last_search.lyft_requested = True
-
-	db.session.commit()
-
-	return "OK"
-
-def get_last_route_search():
-	last_search = db.session.query(RouteSearch)
-	last_search = last_search.order_by('id').all()
-	last_search = last_search[-1]
-
-	return last_search
 
 if __name__ == '__main__':
     # debug=True gives us error messages in the browser and also "reloads" our web app
