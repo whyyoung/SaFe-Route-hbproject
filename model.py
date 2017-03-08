@@ -84,6 +84,34 @@ def connect_to_db(app):
     db.app = app
     db.init_app(app)
 
+##############################################################################
+# Testing data
+
+def example_data():
+    """Create some sample data."""
+
+    # In case this is run more than once, empty out existing data
+#     Crime.query.delete()
+    RouteSearch.query.delete()
+    DataSearch.query.delete()
+
+
+#     ca1 = crime(dept_code='fin', dept='Finance', phone='555-1000')
+#     ca2 = crime(dept_code='legal', dept='Legal', phone='555-2222')
+#     ca3 = crime(dept_code='mktg', dept='Marketing', phone='555-9999')
+
+    # Add searches
+    r1 = RouteSearch(starting_location='683 Sutter Street', ending_location='transbay terminal')
+    r2 = RouteSearch(starting_location='595 Market Street', ending_location='3 Embarcadero')
+    r3 = RouteSearch(starting_location='Mission Pie', ending_location='2550 Mission Street')
+
+    d1 = DataSearch(category='assault', day='friday', time='21-0', district='mission,tenderloin')
+    d2 = DataSearch(category='vandalism', day='all', time='all', district='central')
+    d3 = DataSearch(category='kidnapping', day='monday', time='all', district='tenderloin')
+
+    db.session.add_all([r1, r2, r3, d1, d2, d3])
+    db.session.commit()
+
 
 if __name__ == "__main__":
     # As a convenience, if we run this module interactively, it will leave

@@ -77,6 +77,7 @@ def store_searches():
 								ending_location=ending_location,
 								walking_routes=walking_routes,
 								request_date_time=request_date_time)
+		print route_search
 		db.session.add(route_search)
 		db.session.commit()
 
@@ -103,6 +104,9 @@ def get_filtered_data():
 							time=time,
 							day=day,
 							category=category)
+
+	print data_search
+
 	db.session.add(data_search)
 	db.session.commit()
 
